@@ -1,2 +1,2 @@
-# MoCap-GLSL-Generator
-Tool for generating GLSL data from motion capture data
+# MoCap-Web
+Motion Capture GLSL Generator
