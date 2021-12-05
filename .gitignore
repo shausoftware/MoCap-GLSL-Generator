@@ -17,3 +17,7 @@ out/
 ### JS ###
 node_modules
 
+### MAC ###
+.DS_Store
+
+
