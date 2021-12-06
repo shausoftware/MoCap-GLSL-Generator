@@ -11,6 +11,8 @@ public class FourierRequest implements Serializable {
     private int lowResStartFrame;
     private int startFrame;
     private int endFrame;
+    private boolean useEasing;
+    private int easingFrames;
     private double fourierScale;
     private MoCapScene scene;
     private Offset offset;
@@ -53,6 +55,22 @@ public class FourierRequest implements Serializable {
 
     public void setEndFrame(int endFrame) {
         this.endFrame = endFrame;
+    }
+
+    public boolean isUseEasing() {
+        return useEasing;
+    }
+
+    public void setUseEasing(boolean useEasing) {
+        this.useEasing = useEasing;
+    }
+
+    public int getEasingFrames() {
+        return easingFrames;
+    }
+
+    public void setEasingFrames(int easingFrames) {
+        this.easingFrames = easingFrames;
     }
 
     public double getFourierScale() {

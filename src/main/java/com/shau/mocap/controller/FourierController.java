@@ -31,6 +31,8 @@ public class FourierController {
             String glslContent = fourierService.generateFourier(fourierRequest.getScene(),
                     fourierRequest.getStartFrame(),
                     fourierRequest.getEndFrame(),
+                    fourierRequest.isUseEasing(),
+                    fourierRequest.getEasingFrames(),
                     fourierRequest.getFourierScale(),
                     fourierRequest.getOffset(),
                     fourierRequest.getFourierFrames(),

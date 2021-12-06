@@ -15,11 +15,13 @@ import static org.hamcrest.Matchers.is;
 
 public class FourierTransformerTest {
 
-    private FourierTransformer fourierTransformer = new FourierTransformer();
+    private FourierTransformer fourierTransformer;
     private MoCapScene moCapScene;
 
     @Before
     public void initTests() {
+        fourierTransformer = new FourierTransformer();
+        fourierTransformer.setFourierPreProcessor(new FourierPreProcessor());
         List<Frame> frames = new ArrayList<>();
         List<Joint> frame1Joints = new ArrayList<>();
         frame1Joints.add(new Joint(0, 0.0, 0.0, 0.0));
@@ -111,6 +113,20 @@ public class FourierTransformerTest {
                 is(preProcessed.get(1).getJoints().get(1).getY()));
         assertThat(scale * (-3.13 - moCapScene.getFrames().get(1).getJoints().get(offset.getJointId()).getZ()),
                 is(preProcessed.get(1).getJoints().get(2).getZ()));
+    }
+
+    @Test
+    public void testJointEasing() {
+        List<Frame> easingFrames = fourierTransformer.easing(moCapScene.getFrames(), 0, 1, 1);
+        assertThat(2, is(easingFrames.size()));
+        //first frame joints not eased
+        for (int i = 0; i < moCapScene.getFrames().get(0).getJoints().size(); i++) {
+            assertThat(moCapScene.getFrames().get(0).getJoints().get(i).getX(), is(easingFrames.get(0).getJoints().get(i).getX()));
+        }
+        //second frame joints eased
+        for (int i = 0; i < moCapScene.getFrames().get(0).getJoints().size(); i++) {
+            assertThat(moCapScene.getFrames().get(0).getJoints().get(i).getX(), is(easingFrames.get(1).getJoints().get(i).getX()));
+        }
     }
 
     @Test

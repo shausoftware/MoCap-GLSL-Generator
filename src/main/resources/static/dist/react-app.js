@@ -4402,6 +4402,8 @@ var Fourier = function Fourier(props) {
         'scene': props.scene,
         'startFrame': props.playbackParameters.startFrame,
         'endFrame': props.playbackParameters.endFrame,
+        'useEasing': props.playbackParameters.useLoopEasing,
+        'easingFrames': props.playbackParameters.loopEasingFrames,
         'fourierScale': fourierScale,
         'offset': props.offset,
         'fourierFrames': fourierFrames,
@@ -4526,7 +4528,9 @@ var Fourier = function Fourier(props) {
     className: "mb-3"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_3__.createElement("label", {
     className: "form-label"
-  }, "Start Frame: ", props.playbackParameters.startFrame, " - End Frame: ", props.playbackParameters.endFrame)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_3__.createElement("div", {
+  }, "Start Frame: ", props.playbackParameters.startFrame, " - End Frame: ", props.playbackParameters.endFrame), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_3__.createElement("label", {
+    className: "form-label"
+  }, "Use Easing: ", props.playbackParameters.useLoopEasing ? "true" : "false", " - Easing Frames: ", props.playbackParameters.loopEasingFrames)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_3__.createElement("div", {
     className: "mb-3"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_3__.createElement("label", {
     htmlFor: "fourierFrames",

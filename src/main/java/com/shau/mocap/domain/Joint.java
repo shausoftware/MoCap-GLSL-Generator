@@ -12,7 +12,7 @@ public class Joint implements Serializable {
     private boolean display = true;
 
     public Joint() {
-
+        super();
     }
 
     public Joint (int id, Double x, Double y, Double z) {
@@ -22,6 +22,14 @@ public class Joint implements Serializable {
         this.z = z;
     }
 
+    public Joint (int id, Double x, Double y, Double z, String colour, boolean display) {
+        this.id = id;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.colour = colour;
+        this.display = display;
+    }
 
     public int getId() {
         return id;

@@ -77,6 +77,8 @@ const Fourier = (props) => {
             let data = {'scene': props.scene,
                         'startFrame': props.playbackParameters.startFrame,
                         'endFrame': props.playbackParameters.endFrame,
+                        'useEasing': props.playbackParameters.useLoopEasing,
+                        'easingFrames': props.playbackParameters.loopEasingFrames,
                         'fourierScale': fourierScale,
                         'offset': props.offset,
                         'fourierFrames': fourierFrames,
@@ -179,6 +181,9 @@ const Fourier = (props) => {
                             <div className="mb-3">
                                 <label className="form-label">
                                     Start Frame: {props.playbackParameters.startFrame} - End Frame: {props.playbackParameters.endFrame}
+                                </label>
+                                <label className="form-label">
+                                    Use Easing: {props.playbackParameters.useLoopEasing ? "true"  : "false"} - Easing Frames: {props.playbackParameters.loopEasingFrames}
                                 </label>
                             </div>
                             <div className="mb-3">

@@ -27,6 +27,8 @@ public class FourierService {
     public String generateFourier(MoCapScene moCapScene,
                                   int startFrame,
                                   int endFrame,
+                                  boolean useEasing,
+                                  int  easingFrames,
                                   double fourierScale,
                                   Offset offset,
                                   int fourierFrames,
@@ -35,6 +37,9 @@ public class FourierService {
 
         //pre-processing
         List<Frame> processFrames = fourierTransformer.preProcess(moCapScene, offset, fourierScale);
+        if (useEasing) {
+            processFrames = fourierTransformer.easing(processFrames, startFrame, endFrame, easingFrames);
+        }
 
         int dataFramesSize = endFrame - startFrame;
         int allJointsSize = processFrames.get(startFrame).getJoints().size();
