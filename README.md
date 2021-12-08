@@ -9,9 +9,11 @@ WebGL applications such as Shadertoy (data is compressed using Fourier transform
 
 This tool was created using Java 11, Spring Boot and React and can be run using the following:
 
-*./gradlew bootRun*
+*./gradlew :bootRun*
 
 once running open your browser and goto http://localhost:8080
+
+A Dockerfile has also been included allowing containerisation. 
 
 
 

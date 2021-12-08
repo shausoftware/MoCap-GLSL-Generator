@@ -174,7 +174,7 @@ public class FourierService {
         commonBuffer.append("   Fourier Frames: ").append(fourierFrames).append(LS);
         commonBuffer.append("   Use Low Resolution Encoding: ").append(useLowResolution).append(LS);
         if (useLowResolution) {
-            commonBuffer.append("   Low Resolution Cutoff: ").append(cutoff).append(LS);
+            commonBuffer.append("   Low Resolution Start Frame ").append(cutoff).append(LS);
         }
         commonBuffer.append("   Fourier Scale: ").append(scale).append(LS);
         commonBuffer.append("*/").append(LS);
@@ -408,25 +408,10 @@ public class FourierService {
         debug.append("  max low res z: ").append(maxLowResDevZ).append(LS);
         debug.append("  lowResMinX: ").append(lowResMinX).append(LS);
         debug.append("  lowResMaxX: ").append(lowResMaxX).append(LS);
-        if (lowResMaxX - lowResMinX > MAX_8_BIT) {
-            debug.append("  WARNING LOW RES X differential is greater than ")
-                    .append(MAX_8_BIT)
-                    .append(LS);
-        }
         debug.append("  lowResMinY: ").append(lowResMinY).append(LS);
         debug.append("  lowResMaxY: ").append(lowResMaxY).append(LS);
-        if (lowResMaxY - lowResMinY > MAX_8_BIT) {
-            debug.append("  WARNING LOW RES Y differential is greater than ")
-                    .append(MAX_8_BIT)
-                    .append(LS);
-        }
         debug.append("  lowResMinZ: ").append(lowResMinZ).append(LS);
         debug.append("  lowResMaxZ: ").append(lowResMaxZ).append(LS);
-        if (lowResMaxZ - lowResMinZ > MAX_8_BIT) {
-            debug.append("  WARNING LOW RES Z differential is greater than ")
-                    .append(MAX_8_BIT)
-                    .append(LS);
-        }
         debug.append("*/").append(LS);
 
         return commonBuffer.append(shaderCode).append(debug);
