@@ -14,14 +14,17 @@ This tool was created using Java 11, Spring Boot and React and can be run using 
 
 once running open your browser and goto http://localhost:8080
 
-A public docker image is also available on Docker Hub
+Or a public docker image is also available on Docker Hub
 
 *docker pull shaugraphics/mocapweb:1.0.0*
 
 A sample project .mcd and generated GLSL fourier code .msh can be found in the samples folder. 
 The project was imported using data from http://mocap.cs.cmu.edu/search.php?subjectnumber=60/60_12.c3d
 
-
+Known Issues
+Code is a bit messy and could do with some refactoring
+No help features in UI
+I've experienced some import failures with certain C3D files that I haven't got around to looking at.
 
 
 
