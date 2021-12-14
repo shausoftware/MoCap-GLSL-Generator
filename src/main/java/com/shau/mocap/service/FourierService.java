@@ -4,6 +4,7 @@ import com.shau.mocap.domain.Frame;
 import com.shau.mocap.domain.Joint;
 import com.shau.mocap.domain.MoCapScene;
 import com.shau.mocap.domain.request.Offset;
+import com.shau.mocap.fourier.FourierPreProcessor;
 import com.shau.mocap.fourier.FourierTransformer;
 import com.shau.mocap.parser.BinaryHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +19,22 @@ public class FourierService {
     private static final int MAX_16_BIT = 65353;
     private static final int MAX_8_BIT = 255;
 
+    private static final int MINX = 0;
+    private static final int MAXX = 1;
+    private static final int MINY = 2;
+    private static final int MAXY = 3;
+    private static final int MINZ = 4;
+    private static final int MAXZ = 5;
+
     private FourierTransformer fourierTransformer;
+    private FourierPreProcessor fourierPreProcessor;
     @Autowired
     public void setFourierTransformer(FourierTransformer fourierTransformer) {
         this.fourierTransformer = fourierTransformer;
+    }
+    @Autowired
+    public void setFourierPreProcessor(FourierPreProcessor fourierPreProcessor) {
+        this.fourierPreProcessor = fourierPreProcessor;
     }
 
     public String generateFourier(MoCapScene moCapScene,
@@ -95,67 +108,17 @@ public class FourierService {
 
         String LS = System.lineSeparator();
 
-        int minX = Integer.MAX_VALUE;
-        int maxX = -Integer.MAX_VALUE;
-        int minY = Integer.MAX_VALUE;
-        int maxY = -Integer.MAX_VALUE;
-        int minZ = Integer.MAX_VALUE;
-        int maxZ = -Integer.MAX_VALUE;
-
-        for (int i = 0; i < transform.length; i++) {
-            Double[][] dd = transform[i];
-            for (int j = 0; j < dd.length; j++) {
-                Double[] d = dd[j];
-                minX = lower(minX, d[0]);
-                minX = lower(minX, d[1]);
-                maxX = higher(maxX, d[0]);
-                maxX = higher(maxX, d[1]);
-                minY = lower(minY, d[2]);
-                minY = lower(minY, d[3]);
-                maxY = higher(maxY, d[2]);
-                maxY = higher(maxY, d[3]);
-                minZ = lower(minZ, d[4]);
-                minZ = lower(minZ, d[5]);
-                maxZ = higher(maxZ, d[4]);
-                maxZ = higher(maxZ, d[5]);
-            }
-        }
-
+        int[] bounds = fourierPreProcessor.fourierBounds(transform, 0, 0, 0, 0);
         //push negative fourier values to zero
-        Integer xOffs = minX < 0 ? Math.abs(minX) : 0;
-        Integer yOffs = minY < 0 ? Math.abs(minY) : 0;
-        Integer zOffs = minZ < 0 ? Math.abs(minZ) : 0;
+        Integer xOffs = bounds[MINX] < 0 ? Math.abs(bounds[MINX]) : 0;
+        Integer yOffs = bounds[MINY] < 0 ? Math.abs(bounds[MINY]) : 0;
+        Integer zOffs = bounds[MINZ] < 0 ? Math.abs(bounds[MINZ]) : 0;
 
-        int lowResMinX = Integer.MAX_VALUE;
-        int lowResMaxX = -Integer.MAX_VALUE;
-        int lowResMinY = Integer.MAX_VALUE;
-        int lowResMaxY = -Integer.MAX_VALUE;
-        int lowResMinZ = Integer.MAX_VALUE;
-        int lowResMaxZ = -Integer.MAX_VALUE;
-
-        for (int i = 0; i < transform.length; i++) {
-            Double[][] dd = transform[i];
-            for (int j = cutoff; j < dd.length; j++) {
-                Double[] d = dd[j];
-                lowResMinX = lower(lowResMinX, d[0] + xOffs);
-                lowResMinX = lower(lowResMinX, d[1] + xOffs);
-                lowResMaxX = higher(lowResMaxX, d[0] + xOffs);
-                lowResMaxX = higher(lowResMaxX, d[1] + xOffs);
-                lowResMinY = lower(lowResMinY, d[2] + yOffs);
-                lowResMinY = lower(lowResMinY, d[3] + yOffs);
-                lowResMaxY = higher(lowResMaxY, d[2] + yOffs);
-                lowResMaxY = higher(lowResMaxY, d[3] + yOffs);
-                lowResMinZ = lower(lowResMinZ, d[4] + zOffs);
-                lowResMinZ = lower(lowResMinZ, d[5] + zOffs);
-                lowResMaxZ = higher(lowResMaxZ, d[4] + zOffs);
-                lowResMaxZ = higher(lowResMaxZ, d[5] + zOffs);
-            }
-        }
-
+        int[] lowResBounds = fourierPreProcessor.fourierBounds(transform, cutoff, xOffs, yOffs, zOffs);
         //maximum deviation in fourier data required for low resolution data
-        int maxLowResDevX = lowResMaxX - lowResMinX;
-        int maxLowResDevY = lowResMaxY - lowResMinY;
-        int maxLowResDevZ = lowResMaxZ - lowResMinZ;
+        int maxLowResDevX = lowResBounds[MAXX] - lowResBounds[MINX];
+        int maxLowResDevY = lowResBounds[MAXY] - lowResBounds[MINY];
+        int maxLowResDevZ = lowResBounds[MAXZ] - lowResBounds[MINZ];
 
         //low res scaling
         float lowResScaleEncodeX = maxLowResDevX < 255 ? 1.0f : 255.0f / (float) maxLowResDevX;
@@ -193,9 +156,9 @@ public class FourierService {
         shaderCode.append("#define yOffs ").append(yOffs).append(".0").append(LS);
         shaderCode.append("#define zOffs ").append(zOffs).append(".0").append(LS);
         if (useLowResolution) {
-            shaderCode.append("#define lowResXOffs ").append(lowResMinX).append(".0").append(LS);
-            shaderCode.append("#define lowResYOffs ").append(lowResMinY).append(".0").append(LS);
-            shaderCode.append("#define lowResZOffs ").append(lowResMinZ).append(".0").append(LS);
+            shaderCode.append("#define lowResXOffs ").append(lowResBounds[MINX]).append(".0").append(LS);
+            shaderCode.append("#define lowResYOffs ").append(lowResBounds[MINY]).append(".0").append(LS);
+            shaderCode.append("#define lowResZOffs ").append(lowResBounds[MINZ]).append(".0").append(LS);
             shaderCode.append("#define lowResScaleDecodeX ").append(lowResScaleDecodeX).append(LS);
             shaderCode.append("#define lowResScaleDecodeY ").append(lowResScaleDecodeY).append(LS);
             shaderCode.append("#define lowResScaleDecodeZ ").append(lowResScaleDecodeZ).append(LS);
@@ -328,18 +291,18 @@ public class FourierService {
                         Double[] frame1 = joint[k - 1 + cutoff];
                         Double[] frame2 = joint[k + cutoff];
 
-                        int f1x1 = (int) ((frame1[0].intValue() + xOffs - lowResMinX) * lowResScaleEncodeX);
-                        int f1x2 = (int) ((frame1[1].intValue() + xOffs - lowResMinX) * lowResScaleEncodeX);
-                        int f1y1 = (int) ((frame1[2].intValue() + yOffs - lowResMinY) * lowResScaleEncodeY);
-                        int f1y2 = (int) ((frame1[3].intValue() + yOffs - lowResMinY) * lowResScaleEncodeY);
-                        int f1z1 = (int) ((frame1[4].intValue() + zOffs - lowResMinZ) * lowResScaleEncodeZ);
-                        int f1z2 = (int) ((frame1[5].intValue() + zOffs - lowResMinZ) * lowResScaleEncodeZ);
-                        int f2x1 = (int) ((frame2[0].intValue() + xOffs - lowResMinX) * lowResScaleEncodeX);
-                        int f2x2 = (int) ((frame2[1].intValue() + xOffs - lowResMinX) * lowResScaleEncodeX);
-                        int f2y1 = (int) ((frame2[2].intValue() + yOffs - lowResMinY) * lowResScaleEncodeY);
-                        int f2y2 = (int) ((frame2[3].intValue() + yOffs - lowResMinY) * lowResScaleEncodeY);
-                        int f2z1 = (int) ((frame2[4].intValue() + zOffs - lowResMinZ) * lowResScaleEncodeZ);
-                        int f2z2 = (int) ((frame2[5].intValue() + zOffs - lowResMinZ) * lowResScaleEncodeZ);
+                        int f1x1 = (int) ((frame1[0].intValue() + xOffs - lowResBounds[MINX]) * lowResScaleEncodeX);
+                        int f1x2 = (int) ((frame1[1].intValue() + xOffs - lowResBounds[MINX]) * lowResScaleEncodeX);
+                        int f1y1 = (int) ((frame1[2].intValue() + yOffs - lowResBounds[MINY]) * lowResScaleEncodeY);
+                        int f1y2 = (int) ((frame1[3].intValue() + yOffs - lowResBounds[MINY]) * lowResScaleEncodeY);
+                        int f1z1 = (int) ((frame1[4].intValue() + zOffs - lowResBounds[MINZ]) * lowResScaleEncodeZ);
+                        int f1z2 = (int) ((frame1[5].intValue() + zOffs - lowResBounds[MINZ]) * lowResScaleEncodeZ);
+                        int f2x1 = (int) ((frame2[0].intValue() + xOffs - lowResBounds[MINX]) * lowResScaleEncodeX);
+                        int f2x2 = (int) ((frame2[1].intValue() + xOffs - lowResBounds[MINX]) * lowResScaleEncodeX);
+                        int f2y1 = (int) ((frame2[2].intValue() + yOffs - lowResBounds[MINY]) * lowResScaleEncodeY);
+                        int f2y2 = (int) ((frame2[3].intValue() + yOffs - lowResBounds[MINY]) * lowResScaleEncodeY);
+                        int f2z1 = (int) ((frame2[4].intValue() + zOffs - lowResBounds[MINZ]) * lowResScaleEncodeZ);
+                        int f2z2 = (int) ((frame2[5].intValue() + zOffs - lowResBounds[MINZ]) * lowResScaleEncodeZ);
 
                         encBufferX.append("0x").append(Integer.toHexString(BinaryHelper.encode(f1x1, f1x2, f2x1, f2x2))).append("U");
                         encBufferY.append("0x").append(Integer.toHexString(BinaryHelper.encode(f1y1, f1y2, f2y1, f2y2))).append("U");
@@ -382,23 +345,23 @@ public class FourierService {
         StringBuilder debug = new StringBuilder();
         debug.append(LS);
         debug.append("/* Fourier Generation DEBUG Information").append(LS);
-        debug.append("  minX: ").append(minX).append(LS);
-        debug.append("  maxX: ").append(maxX).append(LS);
-        if (maxX - minX > MAX_16_BIT) {
+        debug.append("  minX: ").append(bounds[MINX]).append(LS);
+        debug.append("  maxX: ").append(bounds[MAXX]).append(LS);
+        if (bounds[MAXX] - bounds[MINX] > MAX_16_BIT) {
             debug.append("  WARNING: Try reducing fourier scale value. X differential is greater than ")
                     .append(MAX_16_BIT)
                     .append(LS);
         }
-        debug.append("  minY: ").append(minY).append(LS);
-        debug.append("  maxY: ").append(maxY).append(LS);
-        if (maxY - minY > MAX_16_BIT) {
+        debug.append("  minY: ").append(bounds[MINY]).append(LS);
+        debug.append("  maxY: ").append(bounds[MAXY]).append(LS);
+        if (bounds[MAXY] - bounds[MINY] > MAX_16_BIT) {
             debug.append("  WARNING: Try reducing fourier scale value. Y differential is greater than ")
                     .append(MAX_16_BIT)
                     .append(LS);
         }
-        debug.append("  minZ: ").append(minZ).append(LS);
-        debug.append("  maxZ: ").append(maxZ).append(LS);
-        if (maxZ - minZ > MAX_16_BIT) {
+        debug.append("  minZ: ").append(bounds[MINZ]).append(LS);
+        debug.append("  maxZ: ").append(bounds[MAXZ]).append(LS);
+        if (bounds[MAXZ] - bounds[MINZ] > MAX_16_BIT) {
             debug.append("  WARNING: Try reducing fourier scale value. Z differential is greater than ")
                     .append(MAX_16_BIT)
                     .append(LS);
@@ -406,26 +369,14 @@ public class FourierService {
         debug.append("  max low res x: ").append(maxLowResDevX).append(LS);
         debug.append("  max low res y: ").append(maxLowResDevY).append(LS);
         debug.append("  max low res z: ").append(maxLowResDevZ).append(LS);
-        debug.append("  lowResMinX: ").append(lowResMinX).append(LS);
-        debug.append("  lowResMaxX: ").append(lowResMaxX).append(LS);
-        debug.append("  lowResMinY: ").append(lowResMinY).append(LS);
-        debug.append("  lowResMaxY: ").append(lowResMaxY).append(LS);
-        debug.append("  lowResMinZ: ").append(lowResMinZ).append(LS);
-        debug.append("  lowResMaxZ: ").append(lowResMaxZ).append(LS);
+        debug.append("  lowResMinX: ").append(lowResBounds[MINX]).append(LS);
+        debug.append("  lowResMaxX: ").append(lowResBounds[MAXX]).append(LS);
+        debug.append("  lowResMinY: ").append(lowResBounds[MINY]).append(LS);
+        debug.append("  lowResMaxY: ").append(lowResBounds[MAXY]).append(LS);
+        debug.append("  lowResMinZ: ").append(lowResBounds[MINZ]).append(LS);
+        debug.append("  lowResMaxZ: ").append(lowResBounds[MAXZ]).append(LS);
         debug.append("*/").append(LS);
 
         return commonBuffer.append(shaderCode).append(debug);
-    }
-
-    private int higher(int cMax, Double val) {
-        if (val > cMax)
-            return val.intValue();
-        return cMax;
-    }
-
-    private int lower(int cMin, Double val) {
-        if (val < cMin)
-            return val.intValue();
-        return cMin;
     }
 }
