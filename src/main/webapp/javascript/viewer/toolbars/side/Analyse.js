@@ -52,7 +52,7 @@ const Analyse = (props) => {
                 <button type="button" className="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" onClick={closeToolbar}></button>
             </div>
             <div className="offcanvas-body">
-                <p> X (Data) - (No Data)</p>
+                <p> X=Data -=No Data</p>
                 <table className="table">
                     <thead>
                         <tr>
