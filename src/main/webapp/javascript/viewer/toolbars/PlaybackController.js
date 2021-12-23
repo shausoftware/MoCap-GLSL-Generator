@@ -48,6 +48,10 @@ const PlaybackController = (props) => {
         props.openDialog('importDialog');
     }
 
+    const handleAnalyseClick = (e) => {
+        props.openDialog('analyseDialog');
+    }
+
     const handleFourierClick = (e) => {
         props.openDialog('fourierDialog');
     }
@@ -106,6 +110,11 @@ const PlaybackController = (props) => {
                             <li>
                                 <a className="dropdown-item" onClick={handleJointDataClick}>
                                     Joint Data
+                                </a>
+                            </li>
+                            <li>
+                                <a className="dropdown-item" onClick={handleAnalyseClick}>
+                                    Analyse
                                 </a>
                             </li>
                             <li>

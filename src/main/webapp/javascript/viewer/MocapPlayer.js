@@ -11,6 +11,7 @@ import JointData from './toolbars/side/JointData';
 import SaveProject from './SaveProject';
 import OpenProject from './OpenProject';
 import Import from './Import';
+import Analyse from './toolbars/side/Analyse';
 import Fourier from './toolbars/Fourier';
 
 const MocapPlayer = (props) =>  {
@@ -41,6 +42,7 @@ const MocapPlayer = (props) =>  {
                                                                   saveProjectDialog: false,
                                                                   openProjectDialog: false,
                                                                   importDialog: false,
+                                                                  analyseDialog: false,
                                                                   fourierDialog: false});
     const [showStats, setShowStats] = React.useState(true);
     const [updateProps, setUpdateProps] = React.useState(false); //TODO: this forces update of React properties to popups/toolbars. It's ugly
@@ -227,6 +229,10 @@ const MocapPlayer = (props) =>  {
                                 openSaveProjectDialog={openSaveProjectDialog}
                                 openStats={openStats}
                                 />
+            <Analyse showDialogState={showDialogState}
+                     openDialog={openDialog}
+                     scene={scene}
+                     />
             <Viewer scene={scene}
                     playbackParameters={playbackParameters}
                     currentFrame={currentFrame}
