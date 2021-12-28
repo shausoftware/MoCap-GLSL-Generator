@@ -3309,7 +3309,7 @@ var Import = function Import(props) {
       data.append('file', selectedFile);
       importScene(data).then(function (scene) {
         scene = updateAxis(scene);
-        props.importScene(scene); //}).catch(e => console.log(e));
+        props.importScene(scene);
       })["catch"](function (e) {
         return setErrorMessage("Server unable to import file");
       });
@@ -3518,7 +3518,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 var MocapPlayer = function MocapPlayer(props) {
-  var API_VERSION = "1.0";
+  var API_VERSION = "1.0.1";
   var emptyScene = {
     filename: '',
     frames: [],
@@ -3547,42 +3547,37 @@ var MocapPlayer = function MocapPlayer(props) {
     view: "XY"
   };
 
-  var _React$useState = react__WEBPACK_IMPORTED_MODULE_2__.useState(undefined),
+  var _React$useState = react__WEBPACK_IMPORTED_MODULE_2__.useState(emptyScene),
       _React$useState2 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__["default"])(_React$useState, 2),
-      project = _React$useState2[0],
-      setProject = _React$useState2[1];
+      scene = _React$useState2[0],
+      setScene = _React$useState2[1];
 
-  var _React$useState3 = react__WEBPACK_IMPORTED_MODULE_2__.useState(emptyScene),
+  var _React$useState3 = react__WEBPACK_IMPORTED_MODULE_2__.useState(defaultPlaybackParameters),
       _React$useState4 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__["default"])(_React$useState3, 2),
-      scene = _React$useState4[0],
-      setScene = _React$useState4[1];
+      playbackParameters = _React$useState4[0],
+      setPlaybackParameters = _React$useState4[1];
 
-  var _React$useState5 = react__WEBPACK_IMPORTED_MODULE_2__.useState(defaultPlaybackParameters),
+  var _React$useState5 = react__WEBPACK_IMPORTED_MODULE_2__.useState(defaultOffset),
       _React$useState6 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__["default"])(_React$useState5, 2),
-      playbackParameters = _React$useState6[0],
-      setPlaybackParameters = _React$useState6[1];
+      offset = _React$useState6[0],
+      setOffset = _React$useState6[1];
 
-  var _React$useState7 = react__WEBPACK_IMPORTED_MODULE_2__.useState(defaultOffset),
+  var _React$useState7 = react__WEBPACK_IMPORTED_MODULE_2__.useState(false),
       _React$useState8 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__["default"])(_React$useState7, 2),
-      offset = _React$useState8[0],
-      setOffset = _React$useState8[1];
+      playing = _React$useState8[0],
+      setPlaying = _React$useState8[1];
 
-  var _React$useState9 = react__WEBPACK_IMPORTED_MODULE_2__.useState(false),
+  var _React$useState9 = react__WEBPACK_IMPORTED_MODULE_2__.useState(0),
       _React$useState10 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__["default"])(_React$useState9, 2),
-      playing = _React$useState10[0],
-      setPlaying = _React$useState10[1];
+      currentFrame = _React$useState10[0],
+      setCurrentFrame = _React$useState10[1];
 
   var _React$useState11 = react__WEBPACK_IMPORTED_MODULE_2__.useState(0),
       _React$useState12 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__["default"])(_React$useState11, 2),
-      currentFrame = _React$useState12[0],
-      setCurrentFrame = _React$useState12[1];
+      jointDataFrame = _React$useState12[0],
+      setJointDataFrame = _React$useState12[1];
 
-  var _React$useState13 = react__WEBPACK_IMPORTED_MODULE_2__.useState(0),
-      _React$useState14 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__["default"])(_React$useState13, 2),
-      jointDataFrame = _React$useState14[0],
-      setJointDataFrame = _React$useState14[1];
-
-  var _React$useState15 = react__WEBPACK_IMPORTED_MODULE_2__.useState({
+  var _React$useState13 = react__WEBPACK_IMPORTED_MODULE_2__.useState({
     viewDialog: false,
     offsetDialog: false,
     jointDialog: false,
@@ -3593,19 +3588,19 @@ var MocapPlayer = function MocapPlayer(props) {
     analyseDialog: false,
     fourierDialog: false
   }),
+      _React$useState14 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__["default"])(_React$useState13, 2),
+      showDialogState = _React$useState14[0],
+      setShowDialogState = _React$useState14[1];
+
+  var _React$useState15 = react__WEBPACK_IMPORTED_MODULE_2__.useState(true),
       _React$useState16 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__["default"])(_React$useState15, 2),
-      showDialogState = _React$useState16[0],
-      setShowDialogState = _React$useState16[1];
+      showStats = _React$useState16[0],
+      setShowStats = _React$useState16[1];
 
-  var _React$useState17 = react__WEBPACK_IMPORTED_MODULE_2__.useState(true),
+  var _React$useState17 = react__WEBPACK_IMPORTED_MODULE_2__.useState(false),
       _React$useState18 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__["default"])(_React$useState17, 2),
-      showStats = _React$useState18[0],
-      setShowStats = _React$useState18[1];
-
-  var _React$useState19 = react__WEBPACK_IMPORTED_MODULE_2__.useState(false),
-      _React$useState20 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__["default"])(_React$useState19, 2),
-      updateProps = _React$useState20[0],
-      setUpdateProps = _React$useState20[1]; //TODO: this forces update of React properties to popups/toolbars. It's ugly
+      updateProps = _React$useState18[0],
+      setUpdateProps = _React$useState18[1]; //TODO: this forces update of React properties to popups/toolbars. It's ugly
 
 
   var importScene = function importScene(newScene) {
@@ -3630,18 +3625,7 @@ var MocapPlayer = function MocapPlayer(props) {
   }; //TODO: handle future updates to api versioning
 
 
-  var updateProjectApis = function updateProjectApis(newProject) {
-    /*
-    let apiUpdate = Object.assign({}, newProject);
-    if (apiUpdate.playbackParameters.useLoopEasing === undefined) {
-        apiUpdate.playbackParameters.useLoopEasing = false;
-    }
-    if (apiUpdate.playbackParameters.loopEasingFrames === undefined) {
-        apiUpdate.playbackParameters.loopEasingFrames = 0;
-    }
-    return apiUpdate;
-    */
-  };
+  var updateProjectApis = function updateProjectApis(newProject) {};
 
   var openDialog = function openDialog(dialog) {
     var newDialogState = Object.assign({}, showDialogState);
@@ -3678,16 +3662,6 @@ var MocapPlayer = function MocapPlayer(props) {
     setPlaybackParameters(newPlaybackParameters);
   };
 
-  var openSaveProjectDialog = function openSaveProjectDialog() {
-    setProject({
-      apiVersion: API_VERSION,
-      playbackParameters: Object.assign({}, playbackParameters),
-      offset: Object.assign({}, offset),
-      scene: Object.assign({}, scene)
-    });
-    openDialog('saveProjectDialog');
-  };
-
   var openJointDialog = function openJointDialog() {
     setJointDataFrame(currentFrame);
     openDialog('jointDialog');
@@ -3705,10 +3679,6 @@ var MocapPlayer = function MocapPlayer(props) {
     if (frame && !isNaN(frame) && frame >= 0 && frame < scene.frames.length) {
       setCurrentFrame(parseInt(frame));
     }
-  };
-
-  var updateFrameDuration = function updateFrameDuration(duration) {
-    setFrameDuration(duration);
   };
 
   var updateJoint = function updateJoint(jointId, property, value) {
@@ -3784,7 +3754,12 @@ var MocapPlayer = function MocapPlayer(props) {
     showDialogState: showDialogState,
     openDialog: openDialog,
     filename: scene.filename,
-    project: project
+    apiVersion: API_VERSION,
+    playbackParameters: playbackParameters,
+    offset: offset,
+    scene: scene,
+    updateProps: updateProps,
+    setUpdateProps: setUpdateProps
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(_OpenProject__WEBPACK_IMPORTED_MODULE_9__["default"], {
     showDialogState: showDialogState,
     openDialog: openDialog,
@@ -3815,7 +3790,6 @@ var MocapPlayer = function MocapPlayer(props) {
     updatePlaybackParameters: updatePlaybackParameters,
     openDialog: openDialog,
     openJointDialog: openJointDialog,
-    openSaveProjectDialog: openSaveProjectDialog,
     openStats: openStats
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(_toolbars_side_Analyse__WEBPACK_IMPORTED_MODULE_11__["default"], {
     showDialogState: showDialogState,
@@ -4008,8 +3982,35 @@ var SaveProject = function SaveProject(props) {
       fileDownloadUrl = _React$useState4[0],
       setFileDownloadUrl = _React$useState4[1];
 
+  var _React$useState5 = react__WEBPACK_IMPORTED_MODULE_1__.useState(false),
+      _React$useState6 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState5, 2),
+      enableJointCulling = _React$useState6[0],
+      setEnableJointCulling = _React$useState6[1];
+
+  var _React$useState7 = react__WEBPACK_IMPORTED_MODULE_1__.useState(0),
+      _React$useState8 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState7, 2),
+      firstDataJoint = _React$useState8[0],
+      setFirstDataJoint = _React$useState8[1];
+
+  var _React$useState9 = react__WEBPACK_IMPORTED_MODULE_1__.useState(0),
+      _React$useState10 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState9, 2),
+      lastDataJoint = _React$useState10[0],
+      setLastDataJoint = _React$useState10[1];
+
+  var _React$useState11 = react__WEBPACK_IMPORTED_MODULE_1__.useState(false),
+      _React$useState12 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState11, 2),
+      firstDataJointError = _React$useState12[0],
+      setFirstDataJointError = _React$useState12[1];
+
+  var _React$useState13 = react__WEBPACK_IMPORTED_MODULE_1__.useState(false),
+      _React$useState14 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState13, 2),
+      lastDataJointError = _React$useState14[0],
+      setLastDataJointError = _React$useState14[1];
+
   var toolsRef = react__WEBPACK_IMPORTED_MODULE_1__.useRef();
   var downloadRef = react__WEBPACK_IMPORTED_MODULE_1__.useRef();
+  var firstDataJointHelpRef = react__WEBPACK_IMPORTED_MODULE_1__.useRef();
+  var lastDataJointHelpRef = react__WEBPACK_IMPORTED_MODULE_1__.useRef();
 
   var closeToolbar = function closeToolbar(e) {
     setDownloadFilename("");
@@ -4017,19 +4018,80 @@ var SaveProject = function SaveProject(props) {
     props.openDialog('saveProjectDialog');
   };
 
+  var resetState = function resetState() {
+    setEnableJointCulling(false);
+    setFirstDataJoint(0);
+    setLastDataJoint(props.scene.frames[0] ? props.scene.frames[0].joints.length : 0);
+    setFirstDataJointError(false);
+    setLastDataJointError(false);
+  };
+
   var downloadProject = function downloadProject(e) {
-    var filename = props.filename.substring(0, props.filename.indexOf(".")) + ".mcd";
-    setDownloadFilename(filename);
-    props.project.scene.filename = filename;
-    var blob = new Blob([JSON.stringify(props.project, null, 4)]);
-    setFileDownloadUrl(URL.createObjectURL(blob));
+    var doDownload = true;
+    var project = {
+      apiVersion: props.apiVersion,
+      playbackParameters: Object.assign({}, props.playbackParameters),
+      offset: Object.assign({}, props.offset),
+      scene: Object.assign({}, props.scene)
+    };
+
+    if (enableJointCulling) {
+      if (firstDataJoint >= lastDataJoint) {
+        doDownload = false;
+        setFirstDataJointError(true);
+      } else if (lastDataJoint < firstDataJoint || lastDataJoint > props.scene.frames[0].joints.length) {
+        doDownload = false;
+        setLastDataJointError(true);
+      } else {
+        project.scene.frames.map(function (frame) {
+          frame.joints = frame.joints.slice(firstDataJoint, lastDataJoint);
+        });
+      }
+    }
+
+    if (doDownload) {
+      var filename = props.filename.substring(0, props.filename.indexOf(".")) + ".mcd";
+      setDownloadFilename(filename);
+      project.scene.filename = filename;
+      var blob = new Blob([JSON.stringify(project, null, 4)]);
+      setFileDownloadUrl(URL.createObjectURL(blob));
+    }
+  };
+
+  var handleEnableJointCulling = function handleEnableJointCulling(e) {
+    setEnableJointCulling(!enableJointCulling);
+  };
+
+  var handleFirstDataJointChange = function handleFirstDataJointChange(e) {
+    setFirstDataJoint(e.target.value);
+  };
+
+  var handleLastDataJointChange = function handleLastDataJointChange(e) {
+    setLastDataJoint(e.target.value);
   };
 
   (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(function () {
+    if (props.updateProps) {
+      resetState();
+      props.setUpdateProps(false);
+    }
+
     if (fileDownloadUrl != "") {
       downloadRef.current.click();
       URL.revokeObjectURL(fileDownloadUrl);
       closeToolbar();
+    }
+
+    if (firstDataJointError) {
+      firstDataJointHelpRef.current.className = "form-text text-danger";
+    } else {
+      firstDataJointHelpRef.current.className = "form-text";
+    }
+
+    if (lastDataJointError) {
+      lastDataJointHelpRef.current.className = "form-text text-danger";
+    } else {
+      lastDataJointHelpRef.current.className = "form-text";
     }
 
     if (props.showDialogState.saveProjectDialog) {
@@ -4064,7 +4126,60 @@ var SaveProject = function SaveProject(props) {
     onClick: closeToolbar
   })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     className: "modal-body"
-  }, "Save the current state of the project."), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("p", null, "Save the current state of the project."), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    className: "mb-3"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    className: "row"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    className: "col-1"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("input", {
+    type: "checkbox",
+    className: "form-check-input",
+    id: "enableLowRes",
+    checked: enableJointCulling,
+    onChange: handleEnableJointCulling
+  })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    className: "col"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("label", {
+    htmlFor: "enableLowRes",
+    className: "form-label"
+  }, "Enable Joint Culling")))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    className: "mb-3"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("label", {
+    htmlFor: "firstDataJoint",
+    className: "form-label"
+  }, "First Data Joint"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("input", {
+    type: "number",
+    min: "0",
+    className: "form-control",
+    id: "firstDataJoint",
+    "aria-describedby": "firstDataJointHelp",
+    value: firstDataJoint,
+    onChange: handleFirstDataJointChange,
+    disabled: !enableJointCulling
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    id: "lowResStartHelp",
+    ref: firstDataJointHelpRef,
+    className: "form-text"
+  }, "Expecting value between 0 and ", lastDataJoint)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    className: "mb-3"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("label", {
+    htmlFor: "lastDataJoint",
+    className: "form-label"
+  }, "Last Data Joint"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("input", {
+    type: "number",
+    min: "0",
+    className: "form-control",
+    id: "lastDataJoint",
+    "aria-describedby": "lastDataJointHelp",
+    value: lastDataJoint,
+    onChange: handleLastDataJointChange,
+    disabled: !enableJointCulling
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    id: "lowResStartHelp",
+    ref: lastDataJointHelpRef,
+    className: "form-text"
+  }, "Expecting value between ", firstDataJoint, " and ", props.scene.frames[0] ? props.scene.frames[0].joints.length : 0))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     className: "modal-footer"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("a", {
     className: "invisible",
@@ -4924,7 +5039,7 @@ var PlaybackController = function PlaybackController(props) {
   };
 
   var handleSaveProjectClick = function handleSaveProjectClick(e) {
-    props.openSaveProjectDialog();
+    props.openDialog('saveProjectDialog');
   };
 
   var handleImportClick = function handleImportClick(e) {
@@ -5408,7 +5523,7 @@ var Analyse = function Analyse(props) {
   var loadJointData = function loadJointData(joints) {
     var jointData = joints.map(function (joint) {
       if (joint.x == 0.0 && joint.y == 0.0 && joint.z == 0.0) {
-        return '-';
+        return '0';
       }
 
       return 'X';
@@ -5453,7 +5568,7 @@ var Analyse = function Analyse(props) {
     onClick: closeToolbar
   })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
     className: "offcanvas-body"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, " X (Data) - (No Data)"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("table", {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, " X=Data 0=No Data "), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("table", {
     className: "table"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("thead", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "Frame"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "No. Joints"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "Joint Data"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("tbody", null, loadFrameData()))));
 };

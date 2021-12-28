@@ -41,7 +41,7 @@ const PlaybackController = (props) => {
     }
 
     const handleSaveProjectClick = (e) => {
-        props.openSaveProjectDialog();
+        props.openDialog('saveProjectDialog');
     }
 
     const handleImportClick = (e) => {

@@ -73,7 +73,6 @@ const Import = (props) => {
             importScene(data).then(scene => {
                 scene = updateAxis(scene);
                 props.importScene(scene);
-            //}).catch(e => console.log(e));
             }).catch(e => setErrorMessage("Server unable to import file"));
         }
     }

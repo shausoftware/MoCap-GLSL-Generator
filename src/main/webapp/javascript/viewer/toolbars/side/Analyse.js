@@ -14,7 +14,7 @@ const Analyse = (props) => {
     const loadJointData = (joints) => {
         let jointData = joints.map((joint) => {
             if (joint.x == 0.0 && joint.y == 0.0 && joint.z == 0.0) {
-                return '-';
+                return '0';
             }
             return 'X';
         });
@@ -52,7 +52,7 @@ const Analyse = (props) => {
                 <button type="button" className="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" onClick={closeToolbar}></button>
             </div>
             <div className="offcanvas-body">
-                <p> (X=Data) (-=No Data) </p>
+                <p> X=Data 0=No Data </p>
                 <table className="table">
                     <thead>
                         <tr>

@@ -213,7 +213,7 @@ const Fourier = (props) => {
                                 </div>
                             </div>
                             <div className="mb-3">
-                                <label htmlFor="lowResStart" className="form-label">Low Res Start Frame</label>
+                                <label htmlFor="lowResStart" className="form-label">Last Hi Res Frame</label>
                                 <input type="number" min="0" className="form-control" id="lowResStart" aria-describedby="lowResStartHelp" value={lowResStart} onChange={handleLowResStartChange} disabled={!enableLowRes}/>
                                 <div id="lowResStartHelp" ref={lowResStartHelpRef} className="form-text">
                                     Expecting value between 0 and {fourierFrames}. The difference between low res start frame and fourier frames

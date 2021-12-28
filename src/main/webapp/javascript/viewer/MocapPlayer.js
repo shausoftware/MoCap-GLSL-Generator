@@ -16,7 +16,7 @@ import Fourier from './toolbars/Fourier';
 
 const MocapPlayer = (props) =>  {
 
-    const API_VERSION = "1.0";
+    const API_VERSION = "1.0.1";
     const emptyScene = {filename: '', frames: [], bounds: {minX: 0, minY: 0, minZ: 0, maxX: 0, maxY: 0, maxZ : 0}};
     const defaultOffset = {jointId: undefined, x: '', y: '', z: ''};
     const defaultPlaybackParameters = {startFrame: 0,
@@ -27,7 +27,6 @@ const MocapPlayer = (props) =>  {
                                        scale: 1.0,
                                        view: "XY"};
 
-    const [project, setProject] = React.useState(undefined);
     const [scene, setScene] = React.useState(emptyScene);
     const [playbackParameters, setPlaybackParameters] = React.useState(defaultPlaybackParameters);
     const [offset, setOffset] = React.useState(defaultOffset);
@@ -66,16 +65,6 @@ const MocapPlayer = (props) =>  {
 
     //TODO: handle future updates to api versioning
     const updateProjectApis = (newProject) => {
-        /*
-        let apiUpdate = Object.assign({}, newProject);
-        if (apiUpdate.playbackParameters.useLoopEasing === undefined) {
-            apiUpdate.playbackParameters.useLoopEasing = false;
-        }
-        if (apiUpdate.playbackParameters.loopEasingFrames === undefined) {
-            apiUpdate.playbackParameters.loopEasingFrames = 0;
-        }
-        return apiUpdate;
-        */
     }
 
     const openDialog = (dialog) => {
@@ -106,14 +95,6 @@ const MocapPlayer = (props) =>  {
         setPlaybackParameters(newPlaybackParameters);
     }
 
-    const openSaveProjectDialog = () => {
-        setProject({apiVersion: API_VERSION,
-                    playbackParameters: Object.assign({}, playbackParameters),
-                    offset: Object.assign({}, offset),
-                    scene: Object.assign({}, scene)});
-        openDialog('saveProjectDialog');
-    }
-
     const openJointDialog = () => {
         setJointDataFrame(currentFrame);
         openDialog('jointDialog');
@@ -131,10 +112,6 @@ const MocapPlayer = (props) =>  {
         if (frame && !isNaN(frame) && frame >= 0 && frame < scene.frames.length) {
             setCurrentFrame(parseInt(frame));
         }
-    }
-
-    const updateFrameDuration = (duration) => {
-        setFrameDuration(duration);
     }
 
     const updateJoint = (jointId, property, value) => {
@@ -195,7 +172,12 @@ const MocapPlayer = (props) =>  {
             <SaveProject showDialogState={showDialogState}
                          openDialog={openDialog}
                          filename={scene.filename}
-                         project={project}
+                         apiVersion={API_VERSION}
+                         playbackParameters={playbackParameters}
+                         offset={offset}
+                         scene={scene}
+                         updateProps={updateProps}
+                         setUpdateProps={setUpdateProps}
                          />
             <OpenProject showDialogState={showDialogState}
                          openDialog={openDialog}
@@ -226,7 +208,6 @@ const MocapPlayer = (props) =>  {
                                 updatePlaybackParameters={updatePlaybackParameters}
                                 openDialog={openDialog}
                                 openJointDialog={openJointDialog}
-                                openSaveProjectDialog={openSaveProjectDialog}
                                 openStats={openStats}
                                 />
             <Analyse showDialogState={showDialogState}

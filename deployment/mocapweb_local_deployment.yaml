@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mocapweb-deployment
+  labels:
+    app: mocapwebapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mocapwebapp
+  template:
+    metadata:
+      labels:
+        app: mocapwebapp
+    spec:
+      containers:
+      - name: mocapwebapp
+        image: shaugraphics/mocapweb:1.0.1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 50001
