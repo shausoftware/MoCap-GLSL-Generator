@@ -65,7 +65,14 @@ public class FourierTransformerTest {
 
     @Test
     public void testPreProcessXyzOffsetNoScaling() {
-        Offset offset = Offset.builder().x(1.0).y(-1.0).z(2.17).build();
+        Offset offset = Offset.builder()
+                .x(1.0)
+                .y(-1.0)
+                .z(2.17)
+                .constrainX(true)
+                .constrainY(true)
+                .constrainZ(true)
+                .build();
         List<Frame> preProcessed = fourierTransformer.preProcess(moCapScene, offset, 1.0);
         assertThat(moCapScene.getFrames().size(), is(preProcessed.size()));
         assertThat(0.0 - offset.getX(), is(preProcessed.get(0).getJoints().get(0).getX()));
@@ -78,7 +85,12 @@ public class FourierTransformerTest {
 
     @Test
     public void testPreProcessJointOffsetNoScaling() {
-        Offset offset = Offset.builder().jointId(2).build();
+        Offset offset = Offset.builder()
+                .jointId(2)
+                .constrainX(true)
+                .constrainY(true)
+                .constrainZ(true)
+                .build();
         List<Frame> preProcessed = fourierTransformer.preProcess(moCapScene, offset, 1.0);
         assertThat(moCapScene.getFrames().size(), is(preProcessed.size()));
         assertThat(0.0 - moCapScene.getFrames().get(0).getJoints().get(offset.getJointId()).getX(),
@@ -98,7 +110,12 @@ public class FourierTransformerTest {
     @Test
     public void testPreProcessJointOffsetWithScaling() {
         double scale =  7.13;
-        Offset offset = Offset.builder().jointId(2).build();
+        Offset offset = Offset.builder()
+                .jointId(2)
+                .constrainX(true)
+                .constrainY(true)
+                .constrainZ(true)
+                .build();
         List<Frame> preProcessed = fourierTransformer.preProcess(moCapScene, offset, scale);
         assertThat(moCapScene.getFrames().size(), is(preProcessed.size()));
         assertThat(scale * (0.0 - moCapScene.getFrames().get(0).getJoints().get(offset.getJointId()).getX()),

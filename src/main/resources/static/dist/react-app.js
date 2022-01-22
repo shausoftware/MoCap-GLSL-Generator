@@ -3520,7 +3520,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 var MocapPlayer = function MocapPlayer(props) {
-  var API_VERSION = "1.0.3";
+  var API_VERSION = "1.0.5";
   var emptyScene = {
     filename: '',
     frames: [],
@@ -3537,7 +3537,10 @@ var MocapPlayer = function MocapPlayer(props) {
     jointId: undefined,
     x: '',
     y: '',
-    z: ''
+    z: '',
+    constrainX: true,
+    constrainY: true,
+    constrainZ: true
   };
   var defaultPlaybackParameters = {
     startFrame: 0,
@@ -3619,16 +3622,22 @@ var MocapPlayer = function MocapPlayer(props) {
   };
 
   var openProject = function openProject(newProject) {
-    //newProject = updateProjectApis(newProject);
+    updateProjectApis(newProject);
     setScene(newProject.scene);
     setPlaybackParameters(newProject.playbackParameters);
     setCurrentFrame(parseInt(newProject.playbackParameters.startFrame));
     setOffset(newProject.offset);
     openDialog('openProjectDialog'); //close
-  }; //TODO: handle future updates to api versioning
+  };
 
-
-  var updateProjectApis = function updateProjectApis(newProject) {};
+  var updateProjectApis = function updateProjectApis(newProject) {
+    //pre 1.0.5
+    if (!newProject.offset.constrainX) {
+      newProject.offset.constrainX = true;
+      newProject.offset.constrainY = true;
+      newProject.offset.constrainZ = true;
+    }
+  };
 
   var openDialog = function openDialog(dialog) {
     var newDialogState = Object.assign({}, showDialogState);
@@ -3694,21 +3703,27 @@ var MocapPlayer = function MocapPlayer(props) {
     setScene(newScene);
   };
 
-  var setAsCenterJoint = function setAsCenterJoint(jointId) {
+  var setAsCenterJoint = function setAsCenterJoint(jointId, constrainX, constrainY, constrainZ) {
     setOffset({
       jointId: jointId,
       x: '',
       y: '',
-      z: ''
+      z: '',
+      constrainX: constrainX,
+      constrainY: constrainY,
+      constrainZ: constrainZ
     });
   };
 
-  var setOffsetCoordinates = function setOffsetCoordinates(x, y, z) {
+  var setOffsetCoordinates = function setOffsetCoordinates(x, y, z, constrainX, constrainY, constrainZ) {
     setOffset({
       jointId: undefined,
       x: x,
       y: y,
-      z: z
+      z: z,
+      constrainX: constrainX,
+      constrainY: constrainY,
+      constrainZ: constrainZ
     });
   };
 
@@ -3741,6 +3756,7 @@ var MocapPlayer = function MocapPlayer(props) {
     showDialogState: showDialogState,
     openDialog: openDialog,
     offset: offset,
+    frames: scene.frames,
     setOffsetCoordinates: setOffsetCoordinates,
     setAsCenterJoint: setAsCenterJoint,
     updateProps: updateProps,
@@ -3750,9 +3766,7 @@ var MocapPlayer = function MocapPlayer(props) {
     openDialog: openDialog,
     scene: scene,
     jointDataFrame: jointDataFrame,
-    updateJoint: updateJoint,
-    setAsCenterJoint: setAsCenterJoint,
-    offsetJointId: offset.jointId
+    updateJoint: updateJoint
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(_SaveProject__WEBPACK_IMPORTED_MODULE_8__["default"], {
     showDialogState: showDialogState,
     openDialog: openDialog,
@@ -4215,9 +4229,9 @@ var Viewer = function Viewer(props) {
     if (props.offset.jointId) {
       var offset = frame.joints[props.offset.jointId];
       sceneOffset = {
-        x: offset.x,
-        y: offset.y,
-        z: offset.z
+        x: props.offset.constrainX ? offset.x : 0.0,
+        y: props.offset.constrainY ? offset.y : 0.0,
+        z: props.offset.constrainZ ? offset.z : 0.0
       };
       screenOffset = {
         x: width / 2,
@@ -4225,9 +4239,9 @@ var Viewer = function Viewer(props) {
       };
     } else if (props.offset.x && props.offset.x != '' && props.offset.y && props.offset.y != '' && props.offset.z && props.offset.z != '') {
       sceneOffset = {
-        x: props.offset.x,
-        y: props.offset.y,
-        z: props.offset.z
+        x: props.offset.constrainX ? props.offset.x : 0.0,
+        y: props.offset.constrainY ? props.offset.y : 0.0,
+        z: props.offset.constrainZ ? props.offset.z : 0.0
       };
       screenOffset = {
         x: width / 2,
@@ -4709,35 +4723,57 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var Offset = function Offset(props) {
-  var _React$useState = react__WEBPACK_IMPORTED_MODULE_1__.useState(props.offset.x),
-      _React$useState2 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState, 2),
-      offsetX = _React$useState2[0],
-      setOffsetX = _React$useState2[1];
+  var JOINT_UNDEFINED = "Undefined";
 
-  var _React$useState3 = react__WEBPACK_IMPORTED_MODULE_1__.useState(props.offset.y),
+  var _React$useState = react__WEBPACK_IMPORTED_MODULE_1__.useState(undefined),
+      _React$useState2 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState, 2),
+      jointId = _React$useState2[0],
+      setJointId = _React$useState2[1];
+
+  var _React$useState3 = react__WEBPACK_IMPORTED_MODULE_1__.useState(props.offset.x),
       _React$useState4 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState3, 2),
-      offsetY = _React$useState4[0],
-      setOffsetY = _React$useState4[1];
+      offsetX = _React$useState4[0],
+      setOffsetX = _React$useState4[1];
 
   var _React$useState5 = react__WEBPACK_IMPORTED_MODULE_1__.useState(props.offset.y),
       _React$useState6 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState5, 2),
-      offsetZ = _React$useState6[0],
-      setOffsetZ = _React$useState6[1];
+      offsetY = _React$useState6[0],
+      setOffsetY = _React$useState6[1];
 
-  var _React$useState7 = react__WEBPACK_IMPORTED_MODULE_1__.useState(false),
+  var _React$useState7 = react__WEBPACK_IMPORTED_MODULE_1__.useState(props.offset.y),
       _React$useState8 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState7, 2),
-      offsetXError = _React$useState8[0],
-      setOffsetXError = _React$useState8[1];
+      offsetZ = _React$useState8[0],
+      setOffsetZ = _React$useState8[1];
 
   var _React$useState9 = react__WEBPACK_IMPORTED_MODULE_1__.useState(false),
       _React$useState10 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState9, 2),
-      offsetYError = _React$useState10[0],
-      setOffsetYError = _React$useState10[1];
+      offsetXError = _React$useState10[0],
+      setOffsetXError = _React$useState10[1];
 
   var _React$useState11 = react__WEBPACK_IMPORTED_MODULE_1__.useState(false),
       _React$useState12 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState11, 2),
-      offsetZError = _React$useState12[0],
-      setOffsetZError = _React$useState12[1];
+      offsetYError = _React$useState12[0],
+      setOffsetYError = _React$useState12[1];
+
+  var _React$useState13 = react__WEBPACK_IMPORTED_MODULE_1__.useState(false),
+      _React$useState14 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState13, 2),
+      offsetZError = _React$useState14[0],
+      setOffsetZError = _React$useState14[1];
+
+  var _React$useState15 = react__WEBPACK_IMPORTED_MODULE_1__.useState(true),
+      _React$useState16 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState15, 2),
+      constrainX = _React$useState16[0],
+      setConstrainX = _React$useState16[1];
+
+  var _React$useState17 = react__WEBPACK_IMPORTED_MODULE_1__.useState(true),
+      _React$useState18 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState17, 2),
+      constrainY = _React$useState18[0],
+      setConstrainY = _React$useState18[1];
+
+  var _React$useState19 = react__WEBPACK_IMPORTED_MODULE_1__.useState(true),
+      _React$useState20 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState19, 2),
+      constrainZ = _React$useState20[0],
+      setConstrainZ = _React$useState20[1];
 
   var toolsRef = react__WEBPACK_IMPORTED_MODULE_1__.useRef();
   var offsetXHelpRef = react__WEBPACK_IMPORTED_MODULE_1__.useRef();
@@ -4749,31 +4785,40 @@ var Offset = function Offset(props) {
   };
 
   var resetState = function resetState() {
+    setJointId(props.offset.jointId ? props.offset.jointId : undefined);
     setOffsetX(props.offset.x);
     setOffsetY(props.offset.y);
     setOffsetZ(props.offset.z);
     setOffsetXError(false);
     setOffsetYError(false);
     setOffsetZError(false);
+    setConstrainX(props.offset.constrainX);
+    setConstrainY(props.offset.constrainY);
+    setConstrainZ(props.offset.constrainZ);
   };
 
   var handleOffsetFormSubmit = function handleOffsetFormSubmit(e) {
     e.preventDefault();
-    var valid = true;
 
-    if (!offsetX || offsetX == '') {
-      valid = false;
-      setOffsetXError(true);
-    } else if (!offsetY || offsetY == '') {
-      valid = false;
-      setOffsetYError(true);
-    } else if (!offsetZ || offsetZ == '') {
-      valid = false;
-      setOffsetZError(true);
-    }
+    if (jointId === JOINT_UNDEFINED) {
+      var valid = true;
 
-    if (valid) {
-      props.setOffsetCoordinates(offsetX, offsetY, offsetZ);
+      if (!offsetX || offsetX == '') {
+        valid = false;
+        setOffsetXError(true);
+      } else if (!offsetY || offsetY == '') {
+        valid = false;
+        setOffsetYError(true);
+      } else if (!offsetZ || offsetZ == '') {
+        valid = false;
+        setOffsetZError(true);
+      }
+
+      if (valid) {
+        props.setOffsetCoordinates(offsetX, offsetY, offsetZ, constrainX, constrainY, constrainZ);
+      }
+    } else {
+      props.setAsCenterJoint(jointId, constrainX, constrainY, constrainZ);
     }
   };
 
@@ -4781,13 +4826,20 @@ var Offset = function Offset(props) {
     setOffsetX('');
     setOffsetY('');
     setOffsetZ('');
+    setJointId(undefined);
     props.setAsCenterJoint(undefined);
+    clearErrors();
   };
 
   var clearErrors = function clearErrors() {
     setOffsetXError(false);
     setOffsetYError(false);
     setOffsetZError(false);
+  };
+
+  var handleJointIdClick = function handleJointIdClick(e) {
+    setJointId(e.target.text === JOINT_UNDEFINED ? undefined : e.target.text);
+    clearErrors();
   };
 
   var handleOffsetXChange = function handleOffsetXChange(e) {
@@ -4805,8 +4857,41 @@ var Offset = function Offset(props) {
     clearErrors();
   };
 
-  var loadJointId = function loadJointId() {
-    return props.offset.jointId ? props.offset.jointId : "Undefined";
+  var handleConstrainXClick = function handleConstrainXClick(e) {
+    setConstrainX(!constrainX);
+  };
+
+  var handleConstrainYClick = function handleConstrainYClick(e) {
+    setConstrainY(!constrainY);
+  };
+
+  var handleConstrainZClick = function handleConstrainZClick(e) {
+    setConstrainZ(!constrainZ);
+  };
+
+  var jointIdOptions = function jointIdOptions() {
+    var options = [];
+    options.push( /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("li", {
+      key: -1
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("a", {
+      className: jointId ? "dropdown-item" : "dropdown-item active",
+      onClick: handleJointIdClick,
+      href: "#"
+    }, JOINT_UNDEFINED)));
+
+    if (props.frames.length > 0) {
+      props.frames[0].joints.map(function (joint) {
+        options.push( /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("li", {
+          key: joint.id - 1
+        }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("a", {
+          className: joint.id - 1 == jointId ? "dropdown-item active" : "dropdown-item",
+          onClick: handleJointIdClick,
+          href: "#"
+        }, joint.id - 1)));
+      });
+    }
+
+    return options;
   };
 
   (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(function () {
@@ -4865,13 +4950,22 @@ var Offset = function Offset(props) {
     onClick: closeToolbar
   })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     className: "modal-body"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
-    className: "mb-3"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("label", {
-    className: "form-label"
-  }, "Center Joint ID: ", loadJointId())), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("form", {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("form", {
     onSubmit: handleOffsetFormSubmit
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("fieldset", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    className: "mb-3"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    className: "dropdown"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("button", {
+    className: "btn btn-secondary btn-sm dropdown-toggle",
+    type: "button",
+    id: "jointId",
+    "data-bs-toggle": "dropdown",
+    "aria-expanded": "false"
+  }, "Centre Joint ID"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("ul", {
+    className: "dropdown-menu scrollable-menu",
+    "aria-labelledby": "assignX"
+  }, jointIdOptions()))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     className: "mb-3"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("label", {
     htmlFor: "offsetX",
@@ -4882,7 +4976,8 @@ var Offset = function Offset(props) {
     id: "offsetX",
     "aria-describedby": "offsetXHelp",
     value: offsetX,
-    onChange: handleOffsetXChange
+    onChange: handleOffsetXChange,
+    disabled: jointId
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     id: "offsetXHelp",
     ref: offsetXHelpRef,
@@ -4898,7 +4993,8 @@ var Offset = function Offset(props) {
     id: "offsetY",
     "aria-describedby": "offsetYHelp",
     value: offsetY,
-    onChange: handleOffsetYChange
+    onChange: handleOffsetYChange,
+    disabled: jointId
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     id: "offsetYHelp",
     ref: offsetYHelpRef,
@@ -4914,23 +5010,40 @@ var Offset = function Offset(props) {
     id: "offsetZ",
     "aria-describedby": "offsetZHelp",
     value: offsetZ,
-    onChange: handleOffsetZChange
+    onChange: handleOffsetZChange,
+    disabled: jointId
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     id: "offsetZHelp",
     ref: offsetZHelpRef,
     className: "form-text"
   }, "Expecting X, Y, Z offset values}"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
-    className: "mb-3"
+    className: "mb-3 text-center"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    className: "btn-group",
+    role: "group",
+    "aria-label": "Constraints"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("button", {
+    type: "button",
+    className: constrainX ? "btn btn-success" : "btn btn-dark",
+    onClick: handleConstrainXClick
+  }, "Constrain X"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("button", {
+    type: "button",
+    className: constrainY ? "btn btn-success" : "btn btn-dark",
+    onClick: handleConstrainYClick
+  }, "Constrain Y"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("button", {
+    type: "button",
+    className: constrainZ ? "btn btn-success" : "btn btn-dark",
+    onClick: handleConstrainZClick
+  }, "Constrain Z"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    className: "text-center"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("button", {
     type: "submit",
     className: "btn btn-secondary"
-  }, "Update Offset"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
-    className: "mb-3"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("button", {
+  }, "Update Offset"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("button", {
     type: "button",
     className: "btn btn-secondary",
     onClick: handleClearOffsetsClick
-  }, "Clear Offsets"))))));
+  }, "Clear Offsets")))))));
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Offset);
@@ -5589,7 +5702,7 @@ var Help = function Help(props) {
     onClick: closeToolbar
   })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
     className: "offcanvas-body"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h6", null, "Overview"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, "A tool for loading and editing well formed C3d & TRC motion capture data with the purpose of generating compressed GLSL suitable for applications such as Shadertoy. See ", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("em", null, "https://github.com/shausoftware/MoCap-GLSL-Generator"), " for source code and sample projects.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h6", null, "Project Menu"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Import"), " - import well formed C3d & TRC motion capture data into the editor/player. Options are available to re-assign x,y,z axis (the default assignment is XZY).")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Save"), " - save the state of your current session (.mcd file) so that you can return to it later. Options are available to trim any empty joint data at the start and end of all frames. See the Analyse tool help below.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Open"), " - open a previously saved project (.mcd file). Sample projects are available on the Github repository.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h6", null, "Stats"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, "Toggle playback statistics in player window.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h6", null, "Playback"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, "Play/Pause motion capture scene and set duration between each frame.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h6", null, "Tools Menu"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Playback Parameters"), " - set the start frame, end frame, scale and view of the playback loop. Options are available to ease joints of the last ", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("em", null, "n"), " frames of the loop to joints at the start frame of loop. This is still a bit of an experiment so it might not work too well. The start and end frame are passed to the Fourier generation tool.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Offsets"), " - use this to create offsets for joint data so that data can be centered in the viewer. The current offset state can be seen on this panel. Manual XYZ offsets can be set or the current offset state can be cleared. Note: Joint offsets are set from the Joint Data panel (see below). This offset is passed to the Fourier generation tool.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Joint Data"), " - use this tool to set the display and colour of each joint globally. The XYZ position of each joint can be set for each frame.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Analyse"), " - this displays metadata of the current MoCap scene and can be used to cull empty joint data when saving the project.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Fourier"), " - use this tool to generate GLSL code suitable for Shadertoy. It allows for data compression using Fourier transforms and data encoding. The tool uses the scaling, start and end frame data set in the player to determine the initial number of Fourier frames. This value should be reduced to a suitable value for your animation to engage the Fourier compression. By default the Fourier transform is encoded into 16 bit integers but an option exists to encode the higher frequency (less significant) fourier data into 8 bit integers. Check the debug data generated for potential scaling issues."))));
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h6", null, "Overview"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, "A tool for loading and editing well formed C3d & TRC motion capture data with the purpose of generating compressed GLSL suitable for applications such as Shadertoy. See ", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("em", null, "https://github.com/shausoftware/MoCap-GLSL-Generator"), " for source code and sample projects.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h6", null, "Project Menu"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Import"), " - import well formed C3d & TRC motion capture data into the editor/player. Options are available to re-assign x,y,z axis (the default assignment is XZY).")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Save"), " - save the state of your current session (.mcd file) so that you can return to it later. Select Delete Hidden Joints Option to permanently remove hidden joints from dataset (large datasets are currently slowing performance).")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Open"), " - open a previously saved project (.mcd file). Sample projects are available on the Github repository.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h6", null, "Stats"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, "Toggle playback statistics in player window.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h6", null, "Playback"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, "Play/Pause motion capture scene and set duration between each frame.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h6", null, "Tools Menu"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Playback Parameters"), " - set the start frame, end frame, scale and view of the playback loop. Options are available to ease joints of the last ", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("em", null, "n"), " frames of the loop to joints at the start frame of loop. This is still a bit of an experiment so it might not work too well. The start and end frame are passed to the Fourier generation tool.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Offsets"), " - use this to create offsets for joint data so that data can be centered in the viewer. The current offset state can be seen on this panel. Manual XYZ offsets can be set or the current offset state can be cleared. Note: Joint offsets are set from the Joint Data panel (see below). This offset is passed to the Fourier generation tool.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Joint Data"), " - use this tool to set the display and colour of each joint globally. The XYZ position of each joint can be set for each frame.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Analyse"), " - this displays metadata of the current MoCap scene and can be used to cull empty joint data when saving the project.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Fourier"), " - use this tool to generate GLSL code suitable for Shadertoy. It allows for data compression using Fourier transforms and data encoding. The tool uses the scaling, start and end frame data set in the player to determine the initial number of Fourier frames. This value should be reduced to a suitable value for your animation to engage the Fourier compression. By default the Fourier transform is encoded into 16 bit integers but an option exists to encode the higher frequency (less significant) fourier data into 8 bit integers. Check the debug data generated for potential scaling issues."))));
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Help);
@@ -5627,15 +5740,10 @@ var JointData = function JointData(props) {
 
   var handleJointColourChange = function handleJointColourChange(e) {
     props.updateJoint(e.target.id, 'colour', e.target.text);
-  }; //TODO:
-
+  };
 
   var handlePositionChange = function handlePositionChange(e) {
     props.updateJoint(e.target.id, e.target.name, e.target.value);
-  };
-
-  var handleSetAsCenter = function handleSetAsCenter(e) {
-    props.setAsCenterJoint(e.target.id);
   };
 
   var loadColourOptions = function loadColourOptions(id, jointColour) {
@@ -5677,12 +5785,7 @@ var JointData = function JointData(props) {
         }, "Joint Colour"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("ul", {
           className: "dropdown-menu",
           "aria-labelledby": "jointColour"
-        }, loadColourOptions(jointId, joint.colour)))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("td", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", {
-          className: centerButtonClass,
-          type: "button",
-          id: jointId,
-          onClick: handleSetAsCenter
-        }, "Center")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("td", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", {
+        }, loadColourOptions(jointId, joint.colour)))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("td", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", {
           id: jointId,
           name: "x",
           type: "number",
@@ -5739,7 +5842,7 @@ var JointData = function JointData(props) {
     className: "lead"
   }, "Joints for Frame: ", props.jointDataFrame), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("table", {
     className: "table"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("thead", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "Joint ID"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "Display"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "Colour"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "Center Joint"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "X"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "Y"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "Z"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("tbody", null, loadRows()))));
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("thead", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "Joint ID"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "Display"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "Colour"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "X"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "Y"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "Z"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("tbody", null, loadRows()))));
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (JointData);
