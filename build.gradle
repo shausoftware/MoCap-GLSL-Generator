@@ -12,7 +12,7 @@ plugins {
 }
 
 group = 'com.shau.mocap'
-version = '1.0.4'
+version = '1.0.5'
 sourceCompatibility = '11'
 
 apply plugin: 'io.spring.dependency-management'
