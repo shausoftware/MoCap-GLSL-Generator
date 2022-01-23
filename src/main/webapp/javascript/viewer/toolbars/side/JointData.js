@@ -21,13 +21,8 @@ const JointData = (props) => {
         props.updateJoint(e.target.id, 'colour', e.target.text);
     }
 
-    //TODO:
     const handlePositionChange = (e) => {
         props.updateJoint(e.target.id, e.target.name, e.target.value);
-    }
-
-    const handleSetAsCenter = (e) => {
-        props.setAsCenterJoint(e.target.id);
     }
 
     const loadColourOptions = (id, jointColour) => {
@@ -66,11 +61,6 @@ const JointData = (props) => {
                                         {loadColourOptions(jointId, joint.colour)}
                                     </ul>
                                 </div>
-                            </td>
-                            <td>
-                                <button className={centerButtonClass} type="button" id={jointId} onClick={handleSetAsCenter}>
-                                    Center
-                                </button>
                             </td>
                             <td>
                                 <input id={jointId} name="x" type="number" value={joint.x} onChange={handlePositionChange} />
@@ -112,7 +102,6 @@ const JointData = (props) => {
                             <th>Joint ID</th>
                             <th>Display</th>
                             <th>Colour</th>
-                            <th>Center Joint</th>
                             <th>X</th>
                             <th>Y</th>
                             <th>Z</th>

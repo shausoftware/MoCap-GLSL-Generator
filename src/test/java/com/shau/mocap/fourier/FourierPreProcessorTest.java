@@ -42,7 +42,14 @@ public class FourierPreProcessorTest {
 
     @Test
     public void testOffsetPositionXyzOffset() {
-        Offset offset = Offset.builder().x(1.1).y(-2.2).z(3.3).build();
+        Offset offset = Offset.builder()
+                .x(1.1)
+                .y(-2.2)
+                .z(3.3)
+                .constrainX(true)
+                .constrainY(true)
+                .constrainZ(true)
+                .build();
         double[] newPosition = fourierPreProcessor.offsetPosition(frames.get(0), offset);
         assertThat(offset.getX(), is(newPosition[0]));
         assertThat(offset.getY(), is(newPosition[1]));
@@ -50,8 +57,26 @@ public class FourierPreProcessorTest {
     }
 
     @Test
+    public void testOffsetPositionXyzOffsetNoConstraints() {
+        Offset offset = Offset.builder()
+                .x(1.1)
+                .y(-2.2)
+                .z(3.3)
+                .build();
+        double[] newPosition = fourierPreProcessor.offsetPosition(frames.get(0), offset);
+        assertThat(0.0, is(newPosition[0]));
+        assertThat(0.0, is(newPosition[1]));
+        assertThat(0.0, is(newPosition[2]));
+    }
+
+    @Test
     public void testOffsetPositionJointOffset() {
-        Offset offset = Offset.builder().jointId(1).build();
+        Offset offset = Offset.builder()
+                .jointId(1)
+                .constrainX(true)
+                .constrainY(true)
+                .constrainZ(true)
+                .build();
         double[] newPosition = fourierPreProcessor.offsetPosition(frames.get(0), offset);
         assertThat(frames.get(0).getJoints().get(1).getX(), is(newPosition[0]));
         assertThat(frames.get(0).getJoints().get(1).getY(), is(newPosition[1]));
@@ -91,7 +116,14 @@ public class FourierPreProcessorTest {
 
     @Test
     public void testOffsetAndScaleAllJointNoScalingXyzOffset() {
-        Offset offset = Offset.builder().x(1.1).y(-2.3).z(7.3).build();
+        Offset offset = Offset.builder()
+                .x(1.1)
+                .y(-2.3)
+                .z(7.3)
+                .constrainX(true)
+                .constrainY(true)
+                .constrainZ(true)
+                .build();
         double[] newPosition = fourierPreProcessor.offsetPosition(frames.get(0), offset);
         List<Joint> offsetJoints = fourierPreProcessor.offsetAndScaleAllJoints(frames.get(0), newPosition, 1.0);
         assertThat(frames.get(0).getJoints().size(), is(offsetJoints.size()));
@@ -106,7 +138,12 @@ public class FourierPreProcessorTest {
 
     @Test
     public void testOffsetAndScaleAllJointNoScalingJointOffset() {
-        Offset offset = Offset.builder().jointId(1).build();
+        Offset offset = Offset.builder()
+                .jointId(1)
+                .constrainX(true)
+                .constrainY(true)
+                .constrainZ(true)
+                .build();
         double[] newPosition = fourierPreProcessor.offsetPosition(frames.get(0), offset);
         List<Joint> offsetJoints = fourierPreProcessor.offsetAndScaleAllJoints(frames.get(0), newPosition, 1.0);
         assertThat(frames.get(0).getJoints().size(), is(offsetJoints.size()));

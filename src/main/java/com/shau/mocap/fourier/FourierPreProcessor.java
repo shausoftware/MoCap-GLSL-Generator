@@ -17,9 +17,13 @@ public class FourierPreProcessor {
         double[] offsetPosition = new double[] {0.0, 0.0, 0.0};
         if (offset.getJointId() != null) {
             Joint centerJoint = frame.getJoints().get(offset.getJointId());
-            offsetPosition = new double[] {centerJoint.getX(), centerJoint.getY(), centerJoint.getZ()};
+            offsetPosition = new double[] {offset.getConstrainX() ? centerJoint.getX() : 0.0,
+                    offset.getConstrainY() ? centerJoint.getY() : 0.0,
+                    offset.getConstrainZ() ? centerJoint.getZ() : 0.0};
         } else if (offset.getX() != null && offset.getY() != null && offset.getZ() != null){
-            offsetPosition = new double[] {offset.getX(), offset.getY(), offset.getZ()};
+            offsetPosition = new double[] {offset.getConstrainX() ? offset.getX() : 0.0,
+                    offset.getConstrainY() ? offset.getY() : 0.0,
+                    offset.getConstrainZ() ? offset.getZ() : 0.0};
         }
         return offsetPosition;
     }
@@ -35,6 +39,7 @@ public class FourierPreProcessor {
         ).collect(Collectors.toList());
     }
 
+    //TODO: easing is cuurrently linear
     public List<Joint> easeJoints(Frame startFrame, Frame currentFrame, double dx) {
         List<Joint> easedJoints =  new ArrayList<>();
         for (int i = 0; i < currentFrame.getJoints().size(); i++) {
@@ -80,5 +85,4 @@ public class FourierPreProcessor {
             return val.intValue();
         return cMin;
     }
-
 }

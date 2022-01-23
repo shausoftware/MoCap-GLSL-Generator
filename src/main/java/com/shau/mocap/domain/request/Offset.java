@@ -1,6 +1,5 @@
 package com.shau.mocap.domain.request;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,4 +10,10 @@ public class Offset {
     private Double x;
     private Double y;
     private Double z;
+    @Builder.Default
+    private Boolean constrainX = false;
+    @Builder.Default
+    private Boolean constrainY = false;
+    @Builder.Default
+    private Boolean constrainZ = false;
 }
