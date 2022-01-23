@@ -7,7 +7,7 @@ import PlaybackController from './toolbars/PlaybackController';
 import Viewer from './Viewer';
 import ViewParameters from './toolbars/ViewParameters';
 import Offset from './toolbars/Offset';
-import JointData from './toolbars/side/JointData';
+import Joints from './toolbars/side/Joints';
 import SaveProject from './SaveProject';
 import OpenProject from './OpenProject';
 import Import from './Import';
@@ -17,7 +17,7 @@ import Help from './toolbars/side/Help';
 
 const MocapPlayer = (props) =>  {
 
-    const API_VERSION = "1.0.4";
+    const API_VERSION = "1.0.6";
     const emptyScene = {filename: '', frames: [], bounds: {minX: 0, minY: 0, minZ: 0, maxX: 0, maxY: 0, maxZ : 0}};
     const defaultOffset = {jointId: undefined, x: '', y: '', z: ''};
     const defaultPlaybackParameters = {startFrame: 0,
@@ -116,10 +116,27 @@ const MocapPlayer = (props) =>  {
         }
     }
 
-    const updateJoint = (jointId, property, value) => {
-        let newScene = JSON.parse(JSON.stringify(scene));  //deep copy
-        newScene.frames = newScene.frames.map((frame) =>  {
-            frame.joints[jointId][property] = value;
+    const updateJoint = (frameId, jointId, display, colour,
+                         x, y, z, globalX, globalY, globalZ) => {
+
+        let newScene = Object.assign({}, scene);
+        newScene.frames = newScene.frames.map((frame) => {
+            frame.joints = frame.joints.map((joint) => {
+                if (jointId === joint.id) {
+                    joint.display = display;
+                    joint.colour = colour;
+                    if (globalX || frameId == frame.id - 1) {
+                        joint.x =  x;
+                    }
+                    if (globalY || frameId == frame.id - 1) {
+                        joint.y = y;
+                    }
+                    if (globalZ || frameId == frame.id - 1) {
+                        joint.z = z;
+                    }
+                }
+                return joint;
+            });
             return frame;
         });
         setScene(newScene);
@@ -163,13 +180,13 @@ const MocapPlayer = (props) =>  {
                     updateProps={updateProps}
                     setUpdateProps={setUpdateProps}
                     />
-            <JointData showDialogState={showDialogState}
+            <Joints showDialogState={showDialogState}
                        openDialog={openDialog}
                        scene={scene}
                        jointDataFrame={jointDataFrame}
                        updateJoint={updateJoint}
-                       setAsCenterJoint={setAsCenterJoint}
-                       offsetJointId={offset.jointId}
+                       updateProps={updateProps}
+                       setUpdateProps={setUpdateProps}
                        />
             <SaveProject showDialogState={showDialogState}
                          openDialog={openDialog}
