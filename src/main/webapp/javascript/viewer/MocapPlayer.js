@@ -19,7 +19,13 @@ const MocapPlayer = (props) =>  {
 
     const API_VERSION = "1.0.6";
     const emptyScene = {filename: '', frames: [], bounds: {minX: 0, minY: 0, minZ: 0, maxX: 0, maxY: 0, maxZ : 0}};
-    const defaultOffset = {jointId: undefined, x: '', y: '', z: ''};
+    const defaultOffset = {jointId: undefined,
+                           x: '',
+                           y: '',
+                           z: '',
+                           constrainX: true,
+                           constrainY: true,
+                           constrainZ: true};
     const defaultPlaybackParameters = {startFrame: 0,
                                        endFrame: 0,
                                        useLoopEasing: false,
@@ -57,7 +63,7 @@ const MocapPlayer = (props) =>  {
     }
 
     const openProject = (newProject) => {
-        //newProject = updateProjectApis(newProject);
+        updateProjectApis(newProject);
         setScene(newProject.scene);
         setPlaybackParameters(newProject.playbackParameters);
         setCurrentFrame(parseInt(newProject.playbackParameters.startFrame));
@@ -65,8 +71,13 @@ const MocapPlayer = (props) =>  {
         openDialog('openProjectDialog'); //close
     }
 
-    //TODO: handle future updates to api versioning
     const updateProjectApis = (newProject) => {
+        //pre 1.0.5
+        if (!newProject.offset.constrainX) {
+            newProject.offset.constrainX = true;
+            newProject.offset.constrainY = true;
+            newProject.offset.constrainZ = true;
+        }
     }
 
     const openDialog = (dialog) => {
@@ -142,12 +153,24 @@ const MocapPlayer = (props) =>  {
         setScene(newScene);
     }
 
-    const setAsCenterJoint = (jointId) => {
-        setOffset({jointId: jointId, x: '', y: '', z: ''});
+    const setAsCenterJoint = (jointId, constrainX, constrainY, constrainZ) => {
+        setOffset({jointId: jointId,
+            x: '',
+            y: '',
+            z: '',
+            constrainX: constrainX,
+            constrainY: constrainY,
+            constrainZ: constrainZ});
     }
 
-    const setOffsetCoordinates = (x, y, z) => {
-        setOffset({jointId: undefined, x: x, y: y, z: z});
+    const setOffsetCoordinates = (x, y, z, constrainX, constrainY, constrainZ) => {
+        setOffset({jointId: undefined,
+            x: x,
+            y: y,
+            z: z,
+            constrainX: constrainX,
+            constrainY: constrainY,
+            constrainZ: constrainZ});
     }
 
     useEffect(() => {
@@ -175,18 +198,19 @@ const MocapPlayer = (props) =>  {
             <Offset showDialogState={showDialogState}
                     openDialog={openDialog}
                     offset={offset}
+                    frames={scene.frames}
                     setOffsetCoordinates={setOffsetCoordinates}
                     setAsCenterJoint={setAsCenterJoint}
                     updateProps={updateProps}
                     setUpdateProps={setUpdateProps}
                     />
             <Joints showDialogState={showDialogState}
-                       openDialog={openDialog}
-                       scene={scene}
-                       jointDataFrame={jointDataFrame}
-                       updateJoint={updateJoint}
-                       updateProps={updateProps}
-                       setUpdateProps={setUpdateProps}
+                    openDialog={openDialog}
+                    scene={scene}
+                    jointDataFrame={jointDataFrame}
+                    updateJoint={updateJoint}
+                    updateProps={updateProps}
+                    setUpdateProps={setUpdateProps}
                        />
             <SaveProject showDialogState={showDialogState}
                          openDialog={openDialog}
