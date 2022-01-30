@@ -36,7 +36,7 @@ const Viewer = (props) => {
         let screenOffset = {x: 0, y: 0};
         let scale = props.playbackParameters.scale;
         if (props.offset.jointId) {
-            let offset = frame.joints[props.offset.jointId];
+            let offset = frame.joints.filter(joint => joint.id == props.offset.jointId)[0];
             sceneOffset = { x: props.offset.constrainX ? offset.x : 0.0,
                 y: props.offset.constrainY ? offset.y : 0.0,
                 z: props.offset.constrainZ ? offset.z : 0.0};

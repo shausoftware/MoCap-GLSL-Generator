@@ -29,7 +29,7 @@ const Help = (props) => {
                 <button type="button" className="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" onClick={closeToolbar}></button>
             </div>
             <div className="offcanvas-body">
-                <h6>Overview</h6>
+                <h6>Overview WIP</h6>
                 <p><small>
                     A tool for loading and editing well formed C3d & TRC motion capture data with the purpose of generating compressed GLSL suitable for applications such as Shadertoy.
                     See <em>https://github.com/shausoftware/MoCap-GLSL-Generator</em> for source code and sample projects.

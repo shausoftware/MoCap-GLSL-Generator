@@ -114,6 +114,11 @@ const Joint = (props) => {
             props.setUpdateProps(false);
         }
 
+        if (props.updateJoints)  {
+            resetState();
+            props.setUpdateJoints(false);
+        }
+
         if (errorX) {
             errorXRef.current.className = "bg-danger text-white";
         } else {
@@ -135,7 +140,7 @@ const Joint = (props) => {
         <tr key={jointId}>
             <td>{jointId}</td>
             <td>
-                <button className="btn btn-warning" onClick={handleUpdateClick}>Update</button>
+                <button className="btn btn-success" onClick={handleUpdateClick}>Update</button>
             </td>
             <td>
                 <input className="form-check-input"

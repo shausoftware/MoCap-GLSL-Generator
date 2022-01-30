@@ -121,10 +121,10 @@ const Offset = (props) => {
             </li> );
         if (props.frames.length > 0) {
             props.frames[0].joints.map((joint) => {
-                options.push(<li key={joint.id - 1}>
-                    <a className={joint.id - 1 == jointId ? "dropdown-item active" : "dropdown-item"}
+                options.push(<li key={joint.id}>
+                    <a className={joint.id == jointId ? "dropdown-item active" : "dropdown-item"}
                        onClick={handleJointIdClick}
-                       href="#">{joint.id - 1}</a>
+                       href="#">{joint.id}</a>
                 </li>);
             });
         }

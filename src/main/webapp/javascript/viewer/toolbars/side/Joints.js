@@ -7,28 +7,54 @@ import Joint from "./Joint";
 
 const Joints = (props) => {
 
+    const [frameId, setFrameId] = React.useState(0);
+    const [updateJoints, setUpdateJoints] = React.useState(false);
+
     let toolsRef = React.useRef();
 
     const closeToolbar = (e) => {
         props.openDialog('jointDialog');
     }
 
+    const handleFrameIdClick = (e) => {
+        setUpdateJoints(true);
+        setFrameId(e.target.text);
+    }
+
     const loadRows = () => {
         let rows;
         if (props.scene.frames.length > 0) {
-            rows = props.scene.frames[props.jointDataFrame].joints.map((joint) => {
+            rows = props.scene.frames[frameId].joints.map((joint) => {
                 return(
                     <Joint key={joint.id}
-                           frameId={props.jointDataFrame}
+                           frameId={frameId}
                            joint={joint}
                            updateJoint={props.updateJoint}
                            updateProps={props.updateProps}
                            setUpdateProps={props.setUpdateProps}
+                           updateJoints={updateJoints}
+                           setUpdateJoints={setUpdateJoints}
                            />
                 );
             });
         }
         return rows;
+    }
+
+    const frameIdOptions = () => {
+        let options = [];
+        if (props.scene.frames.length > 0) {
+            props.scene.frames.map((frame) => {
+                let fid = frame.id - 1; //frame ids are 1 based
+                options.push(
+                    <li key={fid}>
+                        <a className={frameId == fid ? "dropdown-item active" : "dropdown-item"}
+                           onClick={handleFrameIdClick}
+                           href="#">{fid}</a>
+                    </li>);
+            });
+        }
+        return options;
     }
 
     useEffect(() => {
@@ -48,7 +74,17 @@ const Joints = (props) => {
                 <button type="button" className="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" onClick={closeToolbar}></button>
             </div>
             <div className="offcanvas-body">
-                <p className="lead">Joints for Frame: {props.jointDataFrame}</p>
+                <p className="lead">Joints for Frame: {frameId}</p>
+                <div className="mb-3">
+                    <div className="dropdown">
+                        <button className="btn btn-secondary btn-sm dropdown-toggle" type="button" id="frameId" data-bs-toggle="dropdown" aria-expanded="false">
+                            Current Frame ID
+                        </button>
+                        <ul className="dropdown-menu scrollable-menu" aria-labelledby="assignX">
+                            {frameIdOptions()}
+                        </ul>
+                    </div>
+                </div>
                 <table className="table">
                     <thead>
                         <tr>
