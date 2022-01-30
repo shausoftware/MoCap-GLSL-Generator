@@ -1,24 +1,8 @@
 'use strict';
 
 import React from 'react';
-import { useEffect } from 'react';
 
-const PlaybackController = (props) => {
-
-    const frameDurations = ["16", "32",  "64", "128", "256"];
-
-    const handlePlayClick = (e) => {
-        props.updatePlaying();
-    }
-
-    const handleFrameDurationClick = (e) =>  {
-        props.updatePlaybackParameters(['frameDuration'], [e.target.text]);
-    }
-
-    const handleCurrentFrameChange = (e) => {
-        e.preventDefault();
-        props.updateCurrentFrame(e.target.value);
-    }
+const ToolsController = (props) => {
 
     const handleViewParametersClick = (e) => {
         props.openDialog('viewDialog');
@@ -30,10 +14,6 @@ const PlaybackController = (props) => {
 
     const handleJointDataClick = (e) =>  {
         props.openJointDialog();
-    }
-
-    const handleAxisClick = (e) => {
-        props.openDialog('axisDialog');
     }
 
     const handleOpenProjectClick = (e) => {
@@ -64,38 +44,14 @@ const PlaybackController = (props) => {
         props.openDialog('helpDialog');
     }
 
-    const loadFrameDurationOptions = () => {
-        return frameDurations.map((duration) => {
-            return(<li key={duration}>
-                        <a className={props.playbackParameters.frameDuration == duration ? "dropdown-item active" : "dropdown-item"}
-                           onClick={handleFrameDurationClick}
-                           href="#">{duration}</a>
-                   </li>);
-        });
-    }
-
     const loadMenuClass = () => {
         return props.sceneLoaded ? "dropdown-item" : "dropdown-item disabled";
     }
 
     return (
         <div className="container-fluid p-0">
-            <div className="btn-toolbar justify-content-sm-center">
+            <div className="btn-toolbar justify-content-center border border-dark">
                 <div className="btn-group" role="group">
-                    <button type="button" className="btn btn-secondary btn-sm" onClick={handlePlayClick} disabled={!props.sceneLoaded}>{props.playing ? "Pause" : "Play"}</button>
-                </div>
-                <div className="input-group">
-                    <input type="number" min="0" id="currentFrame" className="form-control form-control-sm" value={props.currentFrame} onChange={handleCurrentFrameChange} disabled={!props.sceneLoaded}/>
-                </div>
-                <div className="btn-group" role="group">
-                    <div className="dropdown">
-                        <button className="btn btn-secondary btn-sm dropdown-toggle" type="button" id="frameDuration" data-bs-toggle="dropdown" aria-expanded="false" disabled={!props.sceneLoaded}>
-                            Frame  Duration (ms)
-                        </button>
-                        <ul className="dropdown-menu" aria-labelledby="frameDuration">
-                            {loadFrameDurationOptions()}
-                        </ul>
-                    </div>
                     <div className="dropdown">
                         <button className="btn btn-secondary btn-sm dropdown-toggle" type="button" id="tools" data-bs-toggle="dropdown" aria-expanded="false" disabled={!props.sceneLoaded}>
                             Tools
@@ -158,4 +114,4 @@ const PlaybackController = (props) => {
     );
 }
 
-export default PlaybackController;
+export default ToolsController;

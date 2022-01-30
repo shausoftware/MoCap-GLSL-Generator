@@ -3485,8 +3485,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/defineProperty */ "./node_modules/@babel/runtime/helpers/esm/defineProperty.js");
 /* harmony import */ var _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/slicedToArray */ "./node_modules/@babel/runtime/helpers/esm/slicedToArray.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var _toolbars_PlaybackController__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./toolbars/PlaybackController */ "./src/main/webapp/javascript/viewer/toolbars/PlaybackController.js");
-/* harmony import */ var _Viewer__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Viewer */ "./src/main/webapp/javascript/viewer/Viewer.js");
+/* harmony import */ var _toolbars_ToolsController__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./toolbars/ToolsController */ "./src/main/webapp/javascript/viewer/toolbars/ToolsController.js");
+/* harmony import */ var _ViewerUI__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ViewerUI */ "./src/main/webapp/javascript/viewer/ViewerUI.js");
 /* harmony import */ var _toolbars_ViewParameters__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./toolbars/ViewParameters */ "./src/main/webapp/javascript/viewer/toolbars/ViewParameters.js");
 /* harmony import */ var _toolbars_Offset__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./toolbars/Offset */ "./src/main/webapp/javascript/viewer/toolbars/Offset.js");
 /* harmony import */ var _toolbars_side_Joints__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./toolbars/side/Joints */ "./src/main/webapp/javascript/viewer/toolbars/side/Joints.js");
@@ -3518,9 +3518,8 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 
-
 var MocapPlayer = function MocapPlayer(props) {
-  var API_VERSION = "1.0.4";
+  var API_VERSION = "1.0.7";
   var emptyScene = {
     filename: '',
     frames: [],
@@ -3537,7 +3536,10 @@ var MocapPlayer = function MocapPlayer(props) {
     jointId: undefined,
     x: '',
     y: '',
-    z: ''
+    z: '',
+    constrainX: true,
+    constrainY: true,
+    constrainZ: true
   };
   var defaultPlaybackParameters = {
     startFrame: 0,
@@ -3564,22 +3566,7 @@ var MocapPlayer = function MocapPlayer(props) {
       offset = _React$useState6[0],
       setOffset = _React$useState6[1];
 
-  var _React$useState7 = react__WEBPACK_IMPORTED_MODULE_2__.useState(false),
-      _React$useState8 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__["default"])(_React$useState7, 2),
-      playing = _React$useState8[0],
-      setPlaying = _React$useState8[1];
-
-  var _React$useState9 = react__WEBPACK_IMPORTED_MODULE_2__.useState(0),
-      _React$useState10 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__["default"])(_React$useState9, 2),
-      currentFrame = _React$useState10[0],
-      setCurrentFrame = _React$useState10[1];
-
-  var _React$useState11 = react__WEBPACK_IMPORTED_MODULE_2__.useState(0),
-      _React$useState12 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__["default"])(_React$useState11, 2),
-      jointDataFrame = _React$useState12[0],
-      setJointDataFrame = _React$useState12[1];
-
-  var _React$useState13 = react__WEBPACK_IMPORTED_MODULE_2__.useState({
+  var _React$useState7 = react__WEBPACK_IMPORTED_MODULE_2__.useState({
     viewDialog: false,
     offsetDialog: false,
     jointDialog: false,
@@ -3591,19 +3578,19 @@ var MocapPlayer = function MocapPlayer(props) {
     fourierDialog: false,
     helpDialog: false
   }),
-      _React$useState14 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__["default"])(_React$useState13, 2),
-      showDialogState = _React$useState14[0],
-      setShowDialogState = _React$useState14[1];
+      _React$useState8 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__["default"])(_React$useState7, 2),
+      showDialogState = _React$useState8[0],
+      setShowDialogState = _React$useState8[1];
 
-  var _React$useState15 = react__WEBPACK_IMPORTED_MODULE_2__.useState(true),
-      _React$useState16 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__["default"])(_React$useState15, 2),
-      showStats = _React$useState16[0],
-      setShowStats = _React$useState16[1];
+  var _React$useState9 = react__WEBPACK_IMPORTED_MODULE_2__.useState(true),
+      _React$useState10 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__["default"])(_React$useState9, 2),
+      showStats = _React$useState10[0],
+      setShowStats = _React$useState10[1];
 
-  var _React$useState17 = react__WEBPACK_IMPORTED_MODULE_2__.useState(false),
-      _React$useState18 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__["default"])(_React$useState17, 2),
-      updateProps = _React$useState18[0],
-      setUpdateProps = _React$useState18[1]; //TODO: this forces update of React properties to popups/toolbars. It's ugly
+  var _React$useState11 = react__WEBPACK_IMPORTED_MODULE_2__.useState(false),
+      _React$useState12 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_1__["default"])(_React$useState11, 2),
+      updateProps = _React$useState12[0],
+      setUpdateProps = _React$useState12[1]; //TODO: this forces update of React properties to popups/toolbars. It's ugly
 
 
   var importScene = function importScene(newScene) {
@@ -3619,16 +3606,21 @@ var MocapPlayer = function MocapPlayer(props) {
   };
 
   var openProject = function openProject(newProject) {
-    //newProject = updateProjectApis(newProject);
+    updateProjectApis(newProject);
     setScene(newProject.scene);
     setPlaybackParameters(newProject.playbackParameters);
-    setCurrentFrame(parseInt(newProject.playbackParameters.startFrame));
     setOffset(newProject.offset);
     openDialog('openProjectDialog'); //close
-  }; //TODO: handle future updates to api versioning
+  };
 
-
-  var updateProjectApis = function updateProjectApis(newProject) {};
+  var updateProjectApis = function updateProjectApis(newProject) {
+    //pre 1.0.5
+    if (!newProject.offset.constrainX) {
+      newProject.offset.constrainX = true;
+      newProject.offset.constrainY = true;
+      newProject.offset.constrainZ = true;
+    }
+  };
 
   var openDialog = function openDialog(dialog) {
     var newDialogState = Object.assign({}, showDialogState);
@@ -3666,30 +3658,12 @@ var MocapPlayer = function MocapPlayer(props) {
   };
 
   var openJointDialog = function openJointDialog() {
-    setJointDataFrame(currentFrame);
     openDialog('jointDialog');
   };
 
   var openStats = function openStats() {
     setShowStats(!showStats);
   };
-
-  var updatePlaying = function updatePlaying() {
-    setPlaying(!playing);
-  };
-
-  var updateCurrentFrame = function updateCurrentFrame(frame) {
-    if (frame && !isNaN(frame) && frame >= 0 && frame < scene.frames.length) {
-      setCurrentFrame(parseInt(frame));
-    }
-  };
-  /**
-   * Update a joint
-   * @param jointId
-   * @param property
-   * @param value
-   */
-
 
   var updateJoint = function updateJoint(frameId, jointId, display, colour, x, y, z, globalX, globalY, globalZ) {
     var newScene = Object.assign({}, scene);
@@ -3719,42 +3693,48 @@ var MocapPlayer = function MocapPlayer(props) {
     setScene(newScene);
   };
 
-  var setAsCenterJoint = function setAsCenterJoint(jointId) {
+  var setAsCenterJoint = function setAsCenterJoint(jointId, constrainX, constrainY, constrainZ) {
     setOffset({
       jointId: jointId,
       x: '',
       y: '',
-      z: ''
+      z: '',
+      constrainX: constrainX,
+      constrainY: constrainY,
+      constrainZ: constrainZ
     });
   };
 
-  var setOffsetCoordinates = function setOffsetCoordinates(x, y, z) {
+  var setOffsetCoordinates = function setOffsetCoordinates(x, y, z, constrainX, constrainY, constrainZ) {
     setOffset({
       jointId: undefined,
       x: x,
       y: y,
-      z: z
+      z: z,
+      constrainX: constrainX,
+      constrainY: constrainY,
+      constrainZ: constrainZ
     });
   };
 
-  (0,react__WEBPACK_IMPORTED_MODULE_2__.useEffect)(function () {
-    var interval = null;
-
-    if (playing) {
-      interval = setInterval(function () {
-        setCurrentFrame(currentFrame < playbackParameters.endFrame - 1 ? currentFrame + 1 : parseInt(playbackParameters.startFrame));
-      }, playbackParameters.frameDuration);
-    } else if (!playing) {
-      clearInterval(interval);
-    }
-
-    return function () {
-      return clearInterval(interval);
-    };
-  }, [playing, currentFrame]);
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("div", {
     className: "container-fluid h-100 w-100 p-0 bg-dark"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(_toolbars_ViewParameters__WEBPACK_IMPORTED_MODULE_5__["default"], {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(_toolbars_ToolsController__WEBPACK_IMPORTED_MODULE_3__["default"], {
+    sceneLoaded: scene.frames.length > 0,
+    playbackParameters: playbackParameters,
+    updatePlaybackParameters: updatePlaybackParameters,
+    openDialog: openDialog,
+    openJointDialog: openJointDialog,
+    openStats: openStats
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(_ViewerUI__WEBPACK_IMPORTED_MODULE_4__["default"], {
+    sceneLoaded: scene.frames.length > 0,
+    scene: scene,
+    playbackParameters: playbackParameters,
+    updatePlaybackParameters: updatePlaybackParameters,
+    offset: offset,
+    totalFrames: scene.frames.length,
+    showStats: showStats
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(_toolbars_ViewParameters__WEBPACK_IMPORTED_MODULE_5__["default"], {
     showDialogState: showDialogState,
     openDialog: openDialog,
     playbackParameters: playbackParameters,
@@ -3766,6 +3746,7 @@ var MocapPlayer = function MocapPlayer(props) {
     showDialogState: showDialogState,
     openDialog: openDialog,
     offset: offset,
+    frames: scene.frames,
     setOffsetCoordinates: setOffsetCoordinates,
     setAsCenterJoint: setAsCenterJoint,
     updateProps: updateProps,
@@ -3774,7 +3755,6 @@ var MocapPlayer = function MocapPlayer(props) {
     showDialogState: showDialogState,
     openDialog: openDialog,
     scene: scene,
-    jointDataFrame: jointDataFrame,
     updateJoint: updateJoint,
     updateProps: updateProps,
     setUpdateProps: setUpdateProps
@@ -3808,28 +3788,10 @@ var MocapPlayer = function MocapPlayer(props) {
     scene: scene,
     playbackParameters: playbackParameters,
     offset: offset
-  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(_toolbars_PlaybackController__WEBPACK_IMPORTED_MODULE_3__["default"], {
-    sceneLoaded: scene.frames.length > 0,
-    playing: playing,
-    updatePlaying: updatePlaying,
-    currentFrame: currentFrame,
-    updateCurrentFrame: updateCurrentFrame,
-    playbackParameters: playbackParameters,
-    updatePlaybackParameters: updatePlaybackParameters,
-    openDialog: openDialog,
-    openJointDialog: openJointDialog,
-    openStats: openStats
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(_toolbars_side_Analyse__WEBPACK_IMPORTED_MODULE_11__["default"], {
     showDialogState: showDialogState,
     openDialog: openDialog,
     scene: scene
-  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(_Viewer__WEBPACK_IMPORTED_MODULE_4__["default"], {
-    scene: scene,
-    playbackParameters: playbackParameters,
-    currentFrame: currentFrame,
-    offset: offset,
-    totalFrames: scene.frames.length,
-    showStats: showStats
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(_toolbars_side_Help__WEBPACK_IMPORTED_MODULE_13__["default"], {
     showDialogState: showDialogState,
     openDialog: openDialog,
@@ -4238,11 +4200,13 @@ var Viewer = function Viewer(props) {
     var scale = props.playbackParameters.scale;
 
     if (props.offset.jointId) {
-      var offset = frame.joints[props.offset.jointId];
+      var offset = frame.joints.filter(function (joint) {
+        return joint.id == props.offset.jointId;
+      })[0];
       sceneOffset = {
-        x: offset.x,
-        y: offset.y,
-        z: offset.z
+        x: props.offset.constrainX ? offset.x : 0.0,
+        y: props.offset.constrainY ? offset.y : 0.0,
+        z: props.offset.constrainZ ? offset.z : 0.0
       };
       screenOffset = {
         x: width / 2,
@@ -4250,9 +4214,9 @@ var Viewer = function Viewer(props) {
       };
     } else if (props.offset.x && props.offset.x != '' && props.offset.y && props.offset.y != '' && props.offset.z && props.offset.z != '') {
       sceneOffset = {
-        x: props.offset.x,
-        y: props.offset.y,
-        z: props.offset.z
+        x: props.offset.constrainX ? props.offset.x : 0.0,
+        y: props.offset.constrainY ? props.offset.y : 0.0,
+        z: props.offset.constrainZ ? props.offset.z : 0.0
       };
       screenOffset = {
         x: width / 2,
@@ -4329,6 +4293,89 @@ var Viewer = function Viewer(props) {
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Viewer);
+
+/***/ }),
+
+/***/ "./src/main/webapp/javascript/viewer/ViewerUI.js":
+/*!*******************************************************!*\
+  !*** ./src/main/webapp/javascript/viewer/ViewerUI.js ***!
+  \*******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/slicedToArray */ "./node_modules/@babel/runtime/helpers/esm/slicedToArray.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _toolbars_PlayController__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./toolbars/PlayController */ "./src/main/webapp/javascript/viewer/toolbars/PlayController.js");
+/* harmony import */ var _Viewer__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Viewer */ "./src/main/webapp/javascript/viewer/Viewer.js");
+
+
+
+
+
+
+
+
+var ViewerUI = function ViewerUI(props) {
+  var _React$useState = react__WEBPACK_IMPORTED_MODULE_1__.useState(0),
+      _React$useState2 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState, 2),
+      currentFrame = _React$useState2[0],
+      setCurrentFrame = _React$useState2[1];
+
+  var _React$useState3 = react__WEBPACK_IMPORTED_MODULE_1__.useState(false),
+      _React$useState4 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState3, 2),
+      playing = _React$useState4[0],
+      setPlaying = _React$useState4[1];
+
+  var updatePlaying = function updatePlaying() {
+    setPlaying(!playing);
+  };
+
+  var updateCurrentFrame = function updateCurrentFrame(frame) {
+    if (frame && !isNaN(frame) && frame >= 0 && frame < props.scene.frames.length) {
+      setCurrentFrame(parseInt(frame));
+    }
+  };
+
+  (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(function () {
+    var interval = null;
+
+    if (playing) {
+      interval = setInterval(function () {
+        updateCurrentFrame(currentFrame < props.playbackParameters.endFrame - 1 ? currentFrame + 1 : parseInt(props.playbackParameters.startFrame));
+      }, props.playbackParameters.frameDuration);
+    } else if (!playing) {
+      clearInterval(interval);
+    }
+
+    return function () {
+      return clearInterval(interval);
+    };
+  }, [playing, currentFrame]);
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    className: "container-fluid h-100 w-100 p-0 bg-dark"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(_toolbars_PlayController__WEBPACK_IMPORTED_MODULE_2__["default"], {
+    sceneLoaded: props.scene.frames.length > 0,
+    playing: playing,
+    updatePlaying: updatePlaying,
+    currentFrame: currentFrame,
+    updateCurrentFrame: updateCurrentFrame,
+    playbackParameters: props.playbackParameters,
+    updatePlaybackParameters: props.updatePlaybackParameters
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(_Viewer__WEBPACK_IMPORTED_MODULE_3__["default"], {
+    scene: props.scene,
+    playbackParameters: props.playbackParameters,
+    currentFrame: currentFrame,
+    offset: props.offset,
+    totalFrames: props.scene.frames.length,
+    showStats: props.showStats
+  }));
+};
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (ViewerUI);
 
 /***/ }),
 
@@ -4734,35 +4781,57 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var Offset = function Offset(props) {
-  var _React$useState = react__WEBPACK_IMPORTED_MODULE_1__.useState(props.offset.x),
-      _React$useState2 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState, 2),
-      offsetX = _React$useState2[0],
-      setOffsetX = _React$useState2[1];
+  var JOINT_UNDEFINED = "Undefined";
 
-  var _React$useState3 = react__WEBPACK_IMPORTED_MODULE_1__.useState(props.offset.y),
+  var _React$useState = react__WEBPACK_IMPORTED_MODULE_1__.useState(undefined),
+      _React$useState2 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState, 2),
+      jointId = _React$useState2[0],
+      setJointId = _React$useState2[1];
+
+  var _React$useState3 = react__WEBPACK_IMPORTED_MODULE_1__.useState(props.offset.x),
       _React$useState4 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState3, 2),
-      offsetY = _React$useState4[0],
-      setOffsetY = _React$useState4[1];
+      offsetX = _React$useState4[0],
+      setOffsetX = _React$useState4[1];
 
   var _React$useState5 = react__WEBPACK_IMPORTED_MODULE_1__.useState(props.offset.y),
       _React$useState6 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState5, 2),
-      offsetZ = _React$useState6[0],
-      setOffsetZ = _React$useState6[1];
+      offsetY = _React$useState6[0],
+      setOffsetY = _React$useState6[1];
 
-  var _React$useState7 = react__WEBPACK_IMPORTED_MODULE_1__.useState(false),
+  var _React$useState7 = react__WEBPACK_IMPORTED_MODULE_1__.useState(props.offset.y),
       _React$useState8 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState7, 2),
-      offsetXError = _React$useState8[0],
-      setOffsetXError = _React$useState8[1];
+      offsetZ = _React$useState8[0],
+      setOffsetZ = _React$useState8[1];
 
   var _React$useState9 = react__WEBPACK_IMPORTED_MODULE_1__.useState(false),
       _React$useState10 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState9, 2),
-      offsetYError = _React$useState10[0],
-      setOffsetYError = _React$useState10[1];
+      offsetXError = _React$useState10[0],
+      setOffsetXError = _React$useState10[1];
 
   var _React$useState11 = react__WEBPACK_IMPORTED_MODULE_1__.useState(false),
       _React$useState12 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState11, 2),
-      offsetZError = _React$useState12[0],
-      setOffsetZError = _React$useState12[1];
+      offsetYError = _React$useState12[0],
+      setOffsetYError = _React$useState12[1];
+
+  var _React$useState13 = react__WEBPACK_IMPORTED_MODULE_1__.useState(false),
+      _React$useState14 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState13, 2),
+      offsetZError = _React$useState14[0],
+      setOffsetZError = _React$useState14[1];
+
+  var _React$useState15 = react__WEBPACK_IMPORTED_MODULE_1__.useState(true),
+      _React$useState16 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState15, 2),
+      constrainX = _React$useState16[0],
+      setConstrainX = _React$useState16[1];
+
+  var _React$useState17 = react__WEBPACK_IMPORTED_MODULE_1__.useState(true),
+      _React$useState18 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState17, 2),
+      constrainY = _React$useState18[0],
+      setConstrainY = _React$useState18[1];
+
+  var _React$useState19 = react__WEBPACK_IMPORTED_MODULE_1__.useState(true),
+      _React$useState20 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState19, 2),
+      constrainZ = _React$useState20[0],
+      setConstrainZ = _React$useState20[1];
 
   var toolsRef = react__WEBPACK_IMPORTED_MODULE_1__.useRef();
   var offsetXHelpRef = react__WEBPACK_IMPORTED_MODULE_1__.useRef();
@@ -4774,31 +4843,40 @@ var Offset = function Offset(props) {
   };
 
   var resetState = function resetState() {
+    setJointId(props.offset.jointId ? props.offset.jointId : undefined);
     setOffsetX(props.offset.x);
     setOffsetY(props.offset.y);
     setOffsetZ(props.offset.z);
     setOffsetXError(false);
     setOffsetYError(false);
     setOffsetZError(false);
+    setConstrainX(props.offset.constrainX);
+    setConstrainY(props.offset.constrainY);
+    setConstrainZ(props.offset.constrainZ);
   };
 
   var handleOffsetFormSubmit = function handleOffsetFormSubmit(e) {
     e.preventDefault();
-    var valid = true;
 
-    if (!offsetX || offsetX == '') {
-      valid = false;
-      setOffsetXError(true);
-    } else if (!offsetY || offsetY == '') {
-      valid = false;
-      setOffsetYError(true);
-    } else if (!offsetZ || offsetZ == '') {
-      valid = false;
-      setOffsetZError(true);
-    }
+    if (jointId === JOINT_UNDEFINED) {
+      var valid = true;
 
-    if (valid) {
-      props.setOffsetCoordinates(offsetX, offsetY, offsetZ);
+      if (!offsetX || offsetX == '') {
+        valid = false;
+        setOffsetXError(true);
+      } else if (!offsetY || offsetY == '') {
+        valid = false;
+        setOffsetYError(true);
+      } else if (!offsetZ || offsetZ == '') {
+        valid = false;
+        setOffsetZError(true);
+      }
+
+      if (valid) {
+        props.setOffsetCoordinates(offsetX, offsetY, offsetZ, constrainX, constrainY, constrainZ);
+      }
+    } else {
+      props.setAsCenterJoint(jointId, constrainX, constrainY, constrainZ);
     }
   };
 
@@ -4806,13 +4884,23 @@ var Offset = function Offset(props) {
     setOffsetX('');
     setOffsetY('');
     setOffsetZ('');
-    props.setAsCenterJoint(undefined);
+    setJointId(undefined);
+    setConstrainX(true);
+    setConstrainY(true);
+    setConstrainZ(true);
+    props.setAsCenterJoint(undefined, true, true, true);
+    clearErrors();
   };
 
   var clearErrors = function clearErrors() {
     setOffsetXError(false);
     setOffsetYError(false);
     setOffsetZError(false);
+  };
+
+  var handleJointIdClick = function handleJointIdClick(e) {
+    setJointId(e.target.text === JOINT_UNDEFINED ? undefined : e.target.text);
+    clearErrors();
   };
 
   var handleOffsetXChange = function handleOffsetXChange(e) {
@@ -4830,8 +4918,41 @@ var Offset = function Offset(props) {
     clearErrors();
   };
 
-  var loadJointId = function loadJointId() {
-    return props.offset.jointId ? props.offset.jointId : "Undefined";
+  var handleConstrainXClick = function handleConstrainXClick(e) {
+    setConstrainX(!constrainX);
+  };
+
+  var handleConstrainYClick = function handleConstrainYClick(e) {
+    setConstrainY(!constrainY);
+  };
+
+  var handleConstrainZClick = function handleConstrainZClick(e) {
+    setConstrainZ(!constrainZ);
+  };
+
+  var jointIdOptions = function jointIdOptions() {
+    var options = [];
+    options.push( /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("li", {
+      key: -1
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("a", {
+      className: jointId ? "dropdown-item" : "dropdown-item active",
+      onClick: handleJointIdClick,
+      href: "#"
+    }, JOINT_UNDEFINED)));
+
+    if (props.frames.length > 0) {
+      props.frames[0].joints.map(function (joint) {
+        options.push( /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("li", {
+          key: joint.id
+        }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("a", {
+          className: joint.id == jointId ? "dropdown-item active" : "dropdown-item",
+          onClick: handleJointIdClick,
+          href: "#"
+        }, joint.id)));
+      });
+    }
+
+    return options;
   };
 
   (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(function () {
@@ -4890,13 +5011,22 @@ var Offset = function Offset(props) {
     onClick: closeToolbar
   })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     className: "modal-body"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
-    className: "mb-3"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("label", {
-    className: "form-label"
-  }, "Center Joint ID: ", loadJointId())), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("form", {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("form", {
     onSubmit: handleOffsetFormSubmit
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("fieldset", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    className: "mb-3"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    className: "dropdown"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("button", {
+    className: "btn btn-secondary btn-sm dropdown-toggle",
+    type: "button",
+    id: "jointId",
+    "data-bs-toggle": "dropdown",
+    "aria-expanded": "false"
+  }, "Centre Joint ID"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("ul", {
+    className: "dropdown-menu scrollable-menu",
+    "aria-labelledby": "assignX"
+  }, jointIdOptions()))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     className: "mb-3"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("label", {
     htmlFor: "offsetX",
@@ -4907,7 +5037,8 @@ var Offset = function Offset(props) {
     id: "offsetX",
     "aria-describedby": "offsetXHelp",
     value: offsetX,
-    onChange: handleOffsetXChange
+    onChange: handleOffsetXChange,
+    disabled: jointId
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     id: "offsetXHelp",
     ref: offsetXHelpRef,
@@ -4923,7 +5054,8 @@ var Offset = function Offset(props) {
     id: "offsetY",
     "aria-describedby": "offsetYHelp",
     value: offsetY,
-    onChange: handleOffsetYChange
+    onChange: handleOffsetYChange,
+    disabled: jointId
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     id: "offsetYHelp",
     ref: offsetYHelpRef,
@@ -4939,33 +5071,50 @@ var Offset = function Offset(props) {
     id: "offsetZ",
     "aria-describedby": "offsetZHelp",
     value: offsetZ,
-    onChange: handleOffsetZChange
+    onChange: handleOffsetZChange,
+    disabled: jointId
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     id: "offsetZHelp",
     ref: offsetZHelpRef,
     className: "form-text"
   }, "Expecting X, Y, Z offset values}"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
-    className: "mb-3"
+    className: "mb-3 text-center"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    className: "btn-group",
+    role: "group",
+    "aria-label": "Constraints"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("button", {
+    type: "button",
+    className: constrainX ? "btn btn-success" : "btn btn-dark",
+    onClick: handleConstrainXClick
+  }, "Constrain X"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("button", {
+    type: "button",
+    className: constrainY ? "btn btn-success" : "btn btn-dark",
+    onClick: handleConstrainYClick
+  }, "Constrain Y"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("button", {
+    type: "button",
+    className: constrainZ ? "btn btn-success" : "btn btn-dark",
+    onClick: handleConstrainZClick
+  }, "Constrain Z"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    className: "text-center"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("button", {
     type: "submit",
     className: "btn btn-secondary"
-  }, "Update Offset"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
-    className: "mb-3"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("button", {
+  }, "Update Offset"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("button", {
     type: "button",
     className: "btn btn-secondary",
     onClick: handleClearOffsetsClick
-  }, "Clear Offsets"))))));
+  }, "Clear Offsets")))))));
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Offset);
 
 /***/ }),
 
-/***/ "./src/main/webapp/javascript/viewer/toolbars/PlaybackController.js":
-/*!**************************************************************************!*\
-  !*** ./src/main/webapp/javascript/viewer/toolbars/PlaybackController.js ***!
-  \**************************************************************************/
+/***/ "./src/main/webapp/javascript/viewer/toolbars/PlayController.js":
+/*!**********************************************************************!*\
+  !*** ./src/main/webapp/javascript/viewer/toolbars/PlayController.js ***!
+  \**********************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -4978,8 +5127,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
-var PlaybackController = function PlaybackController(props) {
+var PlayController = function PlayController(props) {
   var frameDurations = ["16", "32", "64", "128", "256"];
 
   var handlePlayClick = function handlePlayClick(e) {
@@ -4995,6 +5143,76 @@ var PlaybackController = function PlaybackController(props) {
     props.updateCurrentFrame(e.target.value);
   };
 
+  var loadFrameDurationOptions = function loadFrameDurationOptions() {
+    return frameDurations.map(function (duration) {
+      return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", {
+        key: duration
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", {
+        className: props.playbackParameters.frameDuration == duration ? "dropdown-item active" : "dropdown-item",
+        onClick: handleFrameDurationClick,
+        href: "#"
+      }, duration));
+    });
+  };
+
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+    className: "container-fluid p-0"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+    className: "btn-toolbar justify-content-center border border-dark"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+    className: "btn-group",
+    role: "group"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", {
+    type: "button",
+    className: "btn btn-secondary btn-sm",
+    onClick: handlePlayClick,
+    disabled: !props.sceneLoaded
+  }, props.playing ? "Pause" : "Play")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+    className: "input-group"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", {
+    type: "number",
+    min: "0",
+    id: "currentFrame",
+    className: "form-control form-control-sm",
+    value: props.currentFrame,
+    onChange: handleCurrentFrameChange,
+    disabled: !props.sceneLoaded
+  })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+    className: "dropdown"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", {
+    className: "btn btn-secondary btn-sm dropdown-toggle",
+    type: "button",
+    id: "frameDuration",
+    "data-bs-toggle": "dropdown",
+    "aria-expanded": "false",
+    disabled: !props.sceneLoaded
+  }, "Frame  Duration (ms)"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("ul", {
+    className: "dropdown-menu",
+    "aria-labelledby": "frameDuration"
+  }, loadFrameDurationOptions()))));
+};
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (PlayController);
+
+/***/ }),
+
+/***/ "./src/main/webapp/javascript/viewer/toolbars/ToolsController.js":
+/*!***********************************************************************!*\
+  !*** ./src/main/webapp/javascript/viewer/toolbars/ToolsController.js ***!
+  \***********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+
+
+
+
+var ToolsController = function ToolsController(props) {
   var handleViewParametersClick = function handleViewParametersClick(e) {
     props.openDialog('viewDialog');
   };
@@ -5005,10 +5223,6 @@ var PlaybackController = function PlaybackController(props) {
 
   var handleJointDataClick = function handleJointDataClick(e) {
     props.openJointDialog();
-  };
-
-  var handleAxisClick = function handleAxisClick(e) {
-    props.openDialog('axisDialog');
   };
 
   var handleOpenProjectClick = function handleOpenProjectClick(e) {
@@ -5039,18 +5253,6 @@ var PlaybackController = function PlaybackController(props) {
     props.openDialog('helpDialog');
   };
 
-  var loadFrameDurationOptions = function loadFrameDurationOptions() {
-    return frameDurations.map(function (duration) {
-      return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("li", {
-        key: duration
-      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("a", {
-        className: props.playbackParameters.frameDuration == duration ? "dropdown-item active" : "dropdown-item",
-        onClick: handleFrameDurationClick,
-        href: "#"
-      }, duration));
-    });
-  };
-
   var loadMenuClass = function loadMenuClass() {
     return props.sceneLoaded ? "dropdown-item" : "dropdown-item disabled";
   };
@@ -5058,41 +5260,11 @@ var PlaybackController = function PlaybackController(props) {
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
     className: "container-fluid p-0"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
-    className: "btn-toolbar justify-content-sm-center"
+    className: "btn-toolbar justify-content-center border border-dark"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
     className: "btn-group",
     role: "group"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", {
-    type: "button",
-    className: "btn btn-secondary btn-sm",
-    onClick: handlePlayClick,
-    disabled: !props.sceneLoaded
-  }, props.playing ? "Pause" : "Play")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
-    className: "input-group"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("input", {
-    type: "number",
-    min: "0",
-    id: "currentFrame",
-    className: "form-control form-control-sm",
-    value: props.currentFrame,
-    onChange: handleCurrentFrameChange,
-    disabled: !props.sceneLoaded
-  })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
-    className: "btn-group",
-    role: "group"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
-    className: "dropdown"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", {
-    className: "btn btn-secondary btn-sm dropdown-toggle",
-    type: "button",
-    id: "frameDuration",
-    "data-bs-toggle": "dropdown",
-    "aria-expanded": "false",
-    disabled: !props.sceneLoaded
-  }, "Frame  Duration (ms)"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("ul", {
-    className: "dropdown-menu",
-    "aria-labelledby": "frameDuration"
-  }, loadFrameDurationOptions())), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
     className: "dropdown"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", {
     className: "btn btn-secondary btn-sm dropdown-toggle",
@@ -5150,7 +5322,7 @@ var PlaybackController = function PlaybackController(props) {
   }, "?"))));
 };
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (PlaybackController);
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (ToolsController);
 
 /***/ }),
 
@@ -5614,7 +5786,7 @@ var Help = function Help(props) {
     onClick: closeToolbar
   })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
     className: "offcanvas-body"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h6", null, "Overview"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, "A tool for loading and editing well formed C3d & TRC motion capture data with the purpose of generating compressed GLSL suitable for applications such as Shadertoy. See ", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("em", null, "https://github.com/shausoftware/MoCap-GLSL-Generator"), " for source code and sample projects.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h6", null, "Project Menu"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Import"), " - import well formed C3d & TRC motion capture data into the editor/player. Options are available to re-assign x,y,z axis (the default assignment is XZY).")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Save"), " - save the state of your current session (.mcd file) so that you can return to it later. Select Delete Hidden Joints Option to permanently remove hidden joints from dataset (large datasets are currently slowing performance).")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Open"), " - open a previously saved project (.mcd file). Sample projects are available on the Github repository.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h6", null, "Stats"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, "Toggle playback statistics in player window.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h6", null, "Playback"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, "Play/Pause motion capture scene and set duration between each frame.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h6", null, "Tools Menu"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Playback Parameters"), " - set the start frame, end frame, scale and view of the playback loop. Options are available to ease joints of the last ", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("em", null, "n"), " frames of the loop to joints at the start frame of loop. This is still a bit of an experiment so it might not work too well. The start and end frame are passed to the Fourier generation tool.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Offsets"), " - use this to create offsets for joint data so that data can be centered in the viewer. The current offset state can be seen on this panel. Manual XYZ offsets can be set or the current offset state can be cleared. Note: Joint offsets are set from the Joint Data panel (see below). This offset is passed to the Fourier generation tool.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Joint Data"), " - use this tool to set the display and colour of each joint globally. The XYZ position of each joint can be set for each frame.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Analyse"), " - this displays metadata of the current MoCap scene and can be used to cull empty joint data when saving the project.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Fourier"), " - use this tool to generate GLSL code suitable for Shadertoy. It allows for data compression using Fourier transforms and data encoding. The tool uses the scaling, start and end frame data set in the player to determine the initial number of Fourier frames. This value should be reduced to a suitable value for your animation to engage the Fourier compression. By default the Fourier transform is encoded into 16 bit integers but an option exists to encode the higher frequency (less significant) fourier data into 8 bit integers. Check the debug data generated for potential scaling issues."))));
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h6", null, "Overview WIP"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, "A tool for loading and editing well formed C3d & TRC motion capture data with the purpose of generating compressed GLSL suitable for applications such as Shadertoy. See ", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("em", null, "https://github.com/shausoftware/MoCap-GLSL-Generator"), " for source code and sample projects.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h6", null, "Project Menu"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Import"), " - import well formed C3d & TRC motion capture data into the editor/player. Options are available to re-assign x,y,z axis (the default assignment is XZY).")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Save"), " - save the state of your current session (.mcd file) so that you can return to it later. Select Delete Hidden Joints Option to permanently remove hidden joints from dataset (large datasets are currently slowing performance).")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Open"), " - open a previously saved project (.mcd file). Sample projects are available on the Github repository.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h6", null, "Stats"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, "Toggle playback statistics in player window.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h6", null, "Playback"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, "Play/Pause motion capture scene and set duration between each frame.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h6", null, "Tools Menu"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Playback Parameters"), " - set the start frame, end frame, scale and view of the playback loop. Options are available to ease joints of the last ", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("em", null, "n"), " frames of the loop to joints at the start frame of loop. This is still a bit of an experiment so it might not work too well. The start and end frame are passed to the Fourier generation tool.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Offsets"), " - use this to create offsets for joint data so that data can be centered in the viewer. The current offset state can be seen on this panel. Manual XYZ offsets can be set or the current offset state can be cleared. Note: Joint offsets are set from the Joint Data panel (see below). This offset is passed to the Fourier generation tool.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Joint Data"), " - use this tool to set the display and colour of each joint globally. The XYZ position of each joint can be set for each frame.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Analyse"), " - this displays metadata of the current MoCap scene and can be used to cull empty joint data when saving the project.")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("small", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("strong", null, "Fourier"), " - use this tool to generate GLSL code suitable for Shadertoy. It allows for data compression using Fourier transforms and data encoding. The tool uses the scaling, start and end frame data set in the player to determine the initial number of Fourier frames. This value should be reduced to a suitable value for your animation to engage the Fourier compression. By default the Fourier transform is encoded into 16 bit integers but an option exists to encode the higher frequency (less significant) fourier data into 8 bit integers. Check the debug data generated for potential scaling issues."))));
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Help);
@@ -5784,6 +5956,11 @@ var Joint = function Joint(props) {
       props.setUpdateProps(false);
     }
 
+    if (props.updateJoints) {
+      resetState();
+      props.setUpdateJoints(false);
+    }
+
     if (errorX) {
       errorXRef.current.className = "bg-danger text-white";
     } else {
@@ -5805,7 +5982,7 @@ var Joint = function Joint(props) {
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("tr", {
     key: jointId
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("td", null, jointId), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("td", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("button", {
-    className: "btn btn-warning",
+    className: "btn btn-success",
     onClick: handleUpdateClick
   }, "Update")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("td", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("input", {
     className: "form-check-input",
@@ -5877,8 +6054,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var _Joint__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Joint */ "./src/main/webapp/javascript/viewer/toolbars/side/Joint.js");
+/* harmony import */ var _babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/slicedToArray */ "./node_modules/@babel/runtime/helpers/esm/slicedToArray.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _Joint__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Joint */ "./src/main/webapp/javascript/viewer/toolbars/side/Joint.js");
+
 
 
 
@@ -5886,24 +6065,41 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var Joints = function Joints(props) {
-  var toolsRef = react__WEBPACK_IMPORTED_MODULE_0__.useRef();
+  var _React$useState = react__WEBPACK_IMPORTED_MODULE_1__.useState(0),
+      _React$useState2 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState, 2),
+      frameId = _React$useState2[0],
+      setFrameId = _React$useState2[1];
+
+  var _React$useState3 = react__WEBPACK_IMPORTED_MODULE_1__.useState(false),
+      _React$useState4 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState3, 2),
+      updateJoints = _React$useState4[0],
+      setUpdateJoints = _React$useState4[1];
+
+  var toolsRef = react__WEBPACK_IMPORTED_MODULE_1__.useRef();
 
   var closeToolbar = function closeToolbar(e) {
     props.openDialog('jointDialog');
+  };
+
+  var handleFrameIdClick = function handleFrameIdClick(e) {
+    setUpdateJoints(true);
+    setFrameId(e.target.text);
   };
 
   var loadRows = function loadRows() {
     var rows;
 
     if (props.scene.frames.length > 0) {
-      rows = props.scene.frames[props.jointDataFrame].joints.map(function (joint) {
-        return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_Joint__WEBPACK_IMPORTED_MODULE_1__["default"], {
+      rows = props.scene.frames[frameId].joints.map(function (joint) {
+        return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(_Joint__WEBPACK_IMPORTED_MODULE_2__["default"], {
           key: joint.id,
-          frameId: props.jointDataFrame,
+          frameId: frameId,
           joint: joint,
           updateJoint: props.updateJoint,
           updateProps: props.updateProps,
-          setUpdateProps: props.setUpdateProps
+          setUpdateProps: props.setUpdateProps,
+          updateJoints: updateJoints,
+          setUpdateJoints: setUpdateJoints
         });
       });
     }
@@ -5911,7 +6107,27 @@ var Joints = function Joints(props) {
     return rows;
   };
 
-  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+  var frameIdOptions = function frameIdOptions() {
+    var options = [];
+
+    if (props.scene.frames.length > 0) {
+      props.scene.frames.map(function (frame) {
+        var fid = frame.id - 1; //frame ids are 1 based
+
+        options.push( /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("li", {
+          key: fid
+        }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("a", {
+          className: frameId == fid ? "dropdown-item active" : "dropdown-item",
+          onClick: handleFrameIdClick,
+          href: "#"
+        }, fid)));
+      });
+    }
+
+    return options;
+  };
+
+  (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(function () {
     if (props.showDialogState.jointDialog) {
       toolsRef.current.className = 'offcanvas offcanvas-start show';
       toolsRef.current.style.visibility = "visible";
@@ -5920,30 +6136,43 @@ var Joints = function Joints(props) {
       toolsRef.current.style.visibility = "";
     }
   });
-  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     ref: toolsRef,
     className: "offcanvas offcanvas-start",
     tabIndex: "-1",
     id: "offcanvasLoopParameters",
     "aria-labelledby": "offcanvasToolsLabel"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     className: "offcanvas-header"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("h5", {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("h5", {
     className: "offcanvas-title",
     id: "offcanvasToolsLabel"
-  }, "Joint Data"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", {
+  }, "Joint Data"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("button", {
     type: "button",
     className: "btn-close text-reset",
     "data-bs-dismiss": "offcanvas",
     "aria-label": "Close",
     onClick: closeToolbar
-  })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+  })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     className: "offcanvas-body"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("p", {
     className: "lead"
-  }, "Joints for Frame: ", props.jointDataFrame), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("table", {
+  }, "Joints for Frame: ", frameId), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    className: "mb-3"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    className: "dropdown"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("button", {
+    className: "btn btn-secondary btn-sm dropdown-toggle",
+    type: "button",
+    id: "frameId",
+    "data-bs-toggle": "dropdown",
+    "aria-expanded": "false"
+  }, "Current Frame ID"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("ul", {
+    className: "dropdown-menu scrollable-menu",
+    "aria-labelledby": "assignX"
+  }, frameIdOptions()))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("table", {
     className: "table"
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("thead", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "ID"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "Display"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "Colour"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "X"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "GlobalX"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "Y"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "GlobalY"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "Z"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", null, "GlobalZ"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("tbody", null, loadRows()))));
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("thead", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("th", null, "ID"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("th", null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("th", null, "Display"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("th", null, "Colour"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("th", null, "X"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("th", null, "GlobalX"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("th", null, "Y"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("th", null, "GlobalY"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("th", null, "Z"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("th", null, "GlobalZ"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("tbody", null, loadRows()))));
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Joints);

@@ -1,10 +1,9 @@
 'use strict';
 
 import React from 'react';
-import { useEffect } from 'react';
 
-import PlaybackController from './toolbars/PlaybackController';
-import Viewer from './Viewer';
+import ToolsController from './toolbars/ToolsController';
+import ViewerUI from "./ViewerUI";
 import ViewParameters from './toolbars/ViewParameters';
 import Offset from './toolbars/Offset';
 import Joints from './toolbars/side/Joints';
@@ -17,7 +16,7 @@ import Help from './toolbars/side/Help';
 
 const MocapPlayer = (props) =>  {
 
-    const API_VERSION = "1.0.6";
+    const API_VERSION = "1.0.7";
     const emptyScene = {filename: '', frames: [], bounds: {minX: 0, minY: 0, minZ: 0, maxX: 0, maxY: 0, maxZ : 0}};
     const defaultOffset = {jointId: undefined,
                            x: '',
@@ -37,10 +36,6 @@ const MocapPlayer = (props) =>  {
     const [scene, setScene] = React.useState(emptyScene);
     const [playbackParameters, setPlaybackParameters] = React.useState(defaultPlaybackParameters);
     const [offset, setOffset] = React.useState(defaultOffset);
-
-    const [playing, setPlaying] = React.useState(false);
-    const [currentFrame, setCurrentFrame] = React.useState(0);
-    const [jointDataFrame, setJointDataFrame] = React.useState(0);
     const [showDialogState, setShowDialogState] = React.useState({viewDialog: false,
                                                                   offsetDialog: false,
                                                                   jointDialog: false,
@@ -66,7 +61,6 @@ const MocapPlayer = (props) =>  {
         updateProjectApis(newProject);
         setScene(newProject.scene);
         setPlaybackParameters(newProject.playbackParameters);
-        setCurrentFrame(parseInt(newProject.playbackParameters.startFrame));
         setOffset(newProject.offset);
         openDialog('openProjectDialog'); //close
     }
@@ -109,22 +103,11 @@ const MocapPlayer = (props) =>  {
     }
 
     const openJointDialog = () => {
-        setJointDataFrame(currentFrame);
         openDialog('jointDialog');
     }
 
     const openStats = () => {
         setShowStats(!showStats);
-    }
-
-    const updatePlaying = () => {
-        setPlaying(!playing);
-    }
-
-    const updateCurrentFrame = (frame) => {
-        if (frame && !isNaN(frame) && frame >= 0 && frame < scene.frames.length) {
-            setCurrentFrame(parseInt(frame));
-        }
     }
 
     const updateJoint = (frameId, jointId, display, colour,
@@ -173,20 +156,23 @@ const MocapPlayer = (props) =>  {
             constrainZ: constrainZ});
     }
 
-    useEffect(() => {
-        let interval = null;
-        if (playing) {
-            interval = setInterval(() => {
-                setCurrentFrame(currentFrame < playbackParameters.endFrame - 1 ? currentFrame + 1 : parseInt(playbackParameters.startFrame));
-            }, playbackParameters.frameDuration);
-        } else if (!playing) {
-            clearInterval(interval);
-        }
-        return () => clearInterval(interval);
-    }, [playing, currentFrame]);
-
     return(
         <div className="container-fluid h-100 w-100 p-0 bg-dark">
+            <ToolsController sceneLoaded={scene.frames.length > 0}
+                             playbackParameters={playbackParameters}
+                             updatePlaybackParameters={updatePlaybackParameters}
+                             openDialog={openDialog}
+                             openJointDialog={openJointDialog}
+                             openStats={openStats}
+                             />
+            <ViewerUI sceneLoaded={scene.frames.length > 0}
+                      scene={scene}
+                      playbackParameters={playbackParameters}
+                      updatePlaybackParameters={updatePlaybackParameters}
+                      offset={offset}
+                      totalFrames={scene.frames.length}
+                      showStats={showStats}
+                      />
             <ViewParameters showDialogState={showDialogState}
                             openDialog={openDialog}
                             playbackParameters={playbackParameters}
@@ -207,7 +193,6 @@ const MocapPlayer = (props) =>  {
             <Joints showDialogState={showDialogState}
                        openDialog={openDialog}
                        scene={scene}
-                       jointDataFrame={jointDataFrame}
                        updateJoint={updateJoint}
                        updateProps={updateProps}
                        setUpdateProps={setUpdateProps}
@@ -242,28 +227,10 @@ const MocapPlayer = (props) =>  {
                      playbackParameters={playbackParameters}
                      offset={offset}
                      />
-            <PlaybackController sceneLoaded={scene.frames.length > 0}
-                                playing={playing}
-                                updatePlaying={updatePlaying}
-                                currentFrame={currentFrame}
-                                updateCurrentFrame={updateCurrentFrame}
-                                playbackParameters={playbackParameters}
-                                updatePlaybackParameters={updatePlaybackParameters}
-                                openDialog={openDialog}
-                                openJointDialog={openJointDialog}
-                                openStats={openStats}
-                                />
             <Analyse showDialogState={showDialogState}
                      openDialog={openDialog}
                      scene={scene}
                      />
-            <Viewer scene={scene}
-                    playbackParameters={playbackParameters}
-                    currentFrame={currentFrame}
-                    offset={offset}
-                    totalFrames={scene.frames.length}
-                    showStats={showStats}
-                    />
             <Help showDialogState={showDialogState}
                   openDialog={openDialog}
                   apiVersion={API_VERSION}
