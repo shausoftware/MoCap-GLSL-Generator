@@ -3,7 +3,10 @@ package com.shau.mocap.fourier;
 import com.shau.mocap.domain.Frame;
 import com.shau.mocap.domain.Joint;
 import com.shau.mocap.domain.MoCapScene;
-import com.shau.mocap.domain.request.Offset;
+import com.shau.mocap.fourier.domain.FourierFrame;
+import com.shau.mocap.fourier.domain.FourierJoint;
+import com.shau.mocap.fourier.domain.FourierTransform;
+import com.shau.mocap.fourier.utils.FourierJointFinder;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,7 +24,6 @@ public class FourierTransformerTest {
     @Before
     public void initTests() {
         fourierTransformer = new FourierTransformer();
-        fourierTransformer.setFourierPreProcessor(new FourierPreProcessor());
         List<Frame> frames = new ArrayList<>();
         List<Joint> frame1Joints = new ArrayList<>();
         frame1Joints.add(Joint.builder().id(0).x(0.0).y(0.0).z(0.0).build());
@@ -37,121 +39,100 @@ public class FourierTransformerTest {
     }
 
     @Test
-    public void testPreProcessNoOffsetNoScaling() {
-        Offset offset = Offset.builder().build();
-        List<Frame> preProcessed = fourierTransformer.preProcess(moCapScene, offset, 1.0);
-        assertThat(moCapScene.getFrames().size(), is(preProcessed.size()));
-        assertThat(0.0, is(preProcessed.get(0).getJoints().get(0).getX()));
-        assertThat(2.0, is(preProcessed.get(0).getJoints().get(1).getY()));
-        assertThat(-3.0, is(preProcessed.get(0).getJoints().get(2).getZ()));
-        assertThat(0.0, is(preProcessed.get(1).getJoints().get(0).getX()));
-        assertThat(2.13, is(preProcessed.get(1).getJoints().get(1).getY()));
-        assertThat(-3.130, is(preProcessed.get(1).getJoints().get(2).getZ()));
-    }
-
-    @Test
-    public void testPreProcessNoOffsetWithScaling() {
-        double scale = 3.1;
-        Offset offset = Offset.builder().build();
-        List<Frame> preProcessed = fourierTransformer.preProcess(moCapScene, offset, scale);
-        assertThat(moCapScene.getFrames().size(), is(preProcessed.size()));
-        assertThat(0.0, is(preProcessed.get(0).getJoints().get(0).getX()));
-        assertThat(scale * 2.0, is(preProcessed.get(0).getJoints().get(1).getY()));
-        assertThat(scale * -3.0, is(preProcessed.get(0).getJoints().get(2).getZ()));
-        assertThat(0.0, is(preProcessed.get(1).getJoints().get(0).getX()));
-        assertThat(scale * 2.13, is(preProcessed.get(1).getJoints().get(1).getY()));
-        assertThat(scale * -3.13, is(preProcessed.get(1).getJoints().get(2).getZ()));
-    }
-
-    @Test
-    public void testPreProcessXyzOffsetNoScaling() {
-        Offset offset = Offset.builder()
-                .x(1.0)
-                .y(-1.0)
-                .z(2.17)
-                .constrainX(true)
-                .constrainY(true)
-                .constrainZ(true)
-                .build();
-        List<Frame> preProcessed = fourierTransformer.preProcess(moCapScene, offset, 1.0);
-        assertThat(moCapScene.getFrames().size(), is(preProcessed.size()));
-        assertThat(0.0 - offset.getX(), is(preProcessed.get(0).getJoints().get(0).getX()));
-        assertThat(2.0 - offset.getY(), is(preProcessed.get(0).getJoints().get(1).getY()));
-        assertThat(-3.0 - offset.getZ(), is(preProcessed.get(0).getJoints().get(2).getZ()));
-        assertThat(0.0 - offset.getX(), is(preProcessed.get(1).getJoints().get(0).getX()));
-        assertThat(2.13 - offset.getY(), is(preProcessed.get(1).getJoints().get(1).getY()));
-        assertThat(-3.13 - offset.getZ(), is(preProcessed.get(1).getJoints().get(2).getZ()));
-    }
-
-    @Test
-    public void testPreProcessJointOffsetNoScaling() {
-        Offset offset = Offset.builder()
-                .jointId(2)
-                .constrainX(true)
-                .constrainY(true)
-                .constrainZ(true)
-                .build();
-        List<Frame> preProcessed = fourierTransformer.preProcess(moCapScene, offset, 1.0);
-        assertThat(moCapScene.getFrames().size(), is(preProcessed.size()));
-        assertThat(0.0 - moCapScene.getFrames().get(0).getJoints().get(offset.getJointId()).getX(),
-                is(preProcessed.get(0).getJoints().get(0).getX()));
-        assertThat(2.0 - moCapScene.getFrames().get(0).getJoints().get(offset.getJointId()).getY(),
-                is(preProcessed.get(0).getJoints().get(1).getY()));
-        assertThat(-3.0 - moCapScene.getFrames().get(0).getJoints().get(offset.getJointId()).getZ(),
-                is(preProcessed.get(0).getJoints().get(2).getZ()));
-        assertThat(0.0 - moCapScene.getFrames().get(1).getJoints().get(offset.getJointId()).getX(),
-                is(preProcessed.get(1).getJoints().get(0).getX()));
-        assertThat(2.13 - moCapScene.getFrames().get(1).getJoints().get(offset.getJointId()).getY(),
-                is(preProcessed.get(1).getJoints().get(1).getY()));
-        assertThat(-3.13 - moCapScene.getFrames().get(1).getJoints().get(offset.getJointId()).getZ(),
-                is(preProcessed.get(1).getJoints().get(2).getZ()));
-    }
-
-    @Test
-    public void testPreProcessJointOffsetWithScaling() {
-        double scale =  7.13;
-        Offset offset = Offset.builder()
-                .jointId(2)
-                .constrainX(true)
-                .constrainY(true)
-                .constrainZ(true)
-                .build();
-        List<Frame> preProcessed = fourierTransformer.preProcess(moCapScene, offset, scale);
-        assertThat(moCapScene.getFrames().size(), is(preProcessed.size()));
-        assertThat(scale * (0.0 - moCapScene.getFrames().get(0).getJoints().get(offset.getJointId()).getX()),
-                is(preProcessed.get(0).getJoints().get(0).getX()));
-        assertThat(scale * (2.0 - moCapScene.getFrames().get(0).getJoints().get(offset.getJointId()).getY()),
-                is(preProcessed.get(0).getJoints().get(1).getY()));
-        assertThat(scale * (-3.0 - moCapScene.getFrames().get(0).getJoints().get(offset.getJointId()).getZ()),
-                is(preProcessed.get(0).getJoints().get(2).getZ()));
-        assertThat(scale * (0.0 - moCapScene.getFrames().get(1).getJoints().get(offset.getJointId()).getX()),
-                is(preProcessed.get(1).getJoints().get(0).getX()));
-        assertThat(scale * (2.13 - moCapScene.getFrames().get(1).getJoints().get(offset.getJointId()).getY()),
-                is(preProcessed.get(1).getJoints().get(1).getY()));
-        assertThat(scale * (-3.13 - moCapScene.getFrames().get(1).getJoints().get(offset.getJointId()).getZ()),
-                is(preProcessed.get(1).getJoints().get(2).getZ()));
-    }
-
-    @Test
-    public void testJointEasing() {
-        List<Frame> easingFrames = fourierTransformer.easing(moCapScene.getFrames(), 0, 1, 1);
-        assertThat(2, is(easingFrames.size()));
-        //first frame joints not eased
-        for (int i = 0; i < moCapScene.getFrames().get(0).getJoints().size(); i++) {
-            assertThat(moCapScene.getFrames().get(0).getJoints().get(i).getX(), is(easingFrames.get(0).getJoints().get(i).getX()));
-        }
-        //second frame joints eased
-        for (int i = 0; i < moCapScene.getFrames().get(0).getJoints().size(); i++) {
-            assertThat(moCapScene.getFrames().get(0).getJoints().get(i).getX(), is(easingFrames.get(1).getJoints().get(i).getX()));
-        }
-    }
-
-    @Test
-    public void testTransform() {
+    public void testTransformOfJoints() {
         int fourierFrames = 2;
-        Double[][] result = fourierTransformer.calculateFourier(moCapScene.getFrames().get(0).getJoints(), fourierFrames);
-        assertThat(fourierFrames, is(result.length));
-        result = fourierTransformer.calculateFourier(moCapScene.getFrames().get(1).getJoints(), fourierFrames);
-        assertThat(fourierFrames, is(result.length));
+        List<Joint> joints = FourierJointFinder.findJointsByIndex(moCapScene, 0);
+        FourierJoint fourierJoint = fourierTransformer.calculateFourierJoint(joints, fourierFrames);
+
+        assertThat(fourierJoint.getFourierFrames().size(), is(fourierFrames));
+
+        joints = FourierJointFinder.findJointsByIndex(moCapScene, 2);
+        fourierJoint = fourierTransformer.calculateFourierJoint(joints, fourierFrames);
+
+        assertThat(fourierJoint.getFourierFrames().size(), is(fourierFrames));
+    }
+
+    @Test
+    public void testTransformOfFrames() {
+        int fourierFrames = 2;
+        FourierTransform fourierTransform = fourierTransformer.createTransform(moCapScene.getFrames(),
+                0,
+                2,
+                fourierFrames);
+
+        assertThat(fourierTransform.getFourierJoints().isEmpty(), is(false));
+        assertThat(fourierTransform.getFourierJoints().size(), is(3));
+        for (FourierJoint fourierJoint : fourierTransform.getFourierJoints()) {
+            assertThat(fourierJoint.getFourierFrames().size(), is(fourierFrames));
+        }
+    }
+
+    @Test
+    public void testBoundsHighRes() {
+        FourierTransform testTransform = createTestTransform();
+        FourierBounds bounds = fourierTransformer.fourierBounds(testTransform);
+
+        testHighResBounds(bounds);
+    }
+
+    @Test
+    public void testLowResBounds() {
+        FourierTransform testTransform = createTestTransform();
+        FourierBounds bounds = fourierTransformer.fourierBounds(testTransform);
+
+        testHighResBounds(bounds);
+
+        LowResBounds lowResBounds = fourierTransformer.lowResBounds(testTransform, 1, bounds);
+
+        assertThat(lowResBounds.getBounds()[0], is(0));
+        assertThat(lowResBounds.getBounds()[1], is(6));
+        assertThat(lowResBounds.getBounds()[2], is(0));
+        assertThat(lowResBounds.getBounds()[3], is(6));
+        assertThat(lowResBounds.getBounds()[4], is(0));
+        assertThat(lowResBounds.getBounds()[5], is(6));
+        assertThat(lowResBounds.getLowResScaleDecodeX(), is(1.0f));
+        assertThat(lowResBounds.getLowResScaleDecodeY(), is(1.0f));
+        assertThat(lowResBounds.getLowResScaleDecodeZ(), is(1.0f));
+        assertThat(lowResBounds.getLowResScaleEncodeX(), is(1.0f));
+        assertThat(lowResBounds.getLowResScaleEncodeY(), is(1.0f));
+        assertThat(lowResBounds.getLowResScaleEncodeZ(), is(1.0f));
+        assertThat(lowResBounds.getMaxLowResDevX(), is(6));
+        assertThat(lowResBounds.getMaxLowResDevY(), is(6));
+        assertThat(lowResBounds.getMaxLowResDevZ(), is(6));
+    }
+
+    private void testHighResBounds(FourierBounds bounds) {
+        assertThat(bounds.getBounds()[0], is(-2));
+        assertThat(bounds.getBounds()[1], is(4));
+        assertThat(bounds.getBounds()[2], is(-2));
+        assertThat(bounds.getBounds()[3], is(4));
+        assertThat(bounds.getBounds()[4], is(-2));
+        assertThat(bounds.getBounds()[5], is(4));
+        assertThat(bounds.getXOffs(), is(2));
+        assertThat(bounds.getYOffs(), is(2));
+        assertThat(bounds.getZOffs(), is(2));
+    }
+
+    private FourierTransform createTestTransform() {
+        List<FourierJoint> fourierJoints = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            List<FourierFrame> fourierFrames = new ArrayList<>();
+            for (int j = 0; j < 3; j++) {
+                double v = j%2 == 0 ? i*j : i*j*-1.0;
+                fourierFrames.add(FourierFrame.builder()
+                        .fourierX1(v)
+                        .fourierX2(v)
+                        .fourierY1(v)
+                        .fourierY2(v)
+                        .fourierZ1(v)
+                        .fourierZ2(v)
+                        .build());
+            }
+            fourierJoints.add(FourierJoint.builder()
+                    .jointId(i)
+                    .fourierFrames(fourierFrames)
+                    .build());
+        }
+        return FourierTransform.builder().fourierJoints(fourierJoints).build();
     }
 }
