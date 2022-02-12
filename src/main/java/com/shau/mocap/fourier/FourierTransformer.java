@@ -2,51 +2,40 @@ package com.shau.mocap.fourier;
 
 import com.shau.mocap.domain.Frame;
 import com.shau.mocap.domain.Joint;
-import com.shau.mocap.domain.MoCapScene;
-import com.shau.mocap.domain.request.Offset;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.shau.mocap.fourier.domain.FourierFrame;
+import com.shau.mocap.fourier.domain.FourierJoint;
+import com.shau.mocap.fourier.domain.FourierTransform;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
-public class FourierTransformer {
+public class FourierTransformer implements FourierConstants {
 
-    private FourierPreProcessor fourierPreProcessor;
-    @Autowired
-    public void setFourierPreProcessor(FourierPreProcessor fourierPreProcessor) {
-        this.fourierPreProcessor =  fourierPreProcessor;
-    }
+    public FourierTransform createTransform(List<Frame> processFrames,
+                                           int startFrame,
+                                           int endFrame,
+                                           int fourierFrames) {
+        List<FourierJoint> fourierJointList = new ArrayList<>();
+        for (int i = 0;  i < processFrames.get(startFrame).getJoints().size(); i++) {
+            int index = i;
+            List<Joint> fourierJoints = processFrames.stream()
+                    .skip(startFrame)
+                    .limit(endFrame - startFrame)
+                    .map(f -> f.getJoints().get(index))
+                    .collect(Collectors.toList());
 
-    public List<Frame> preProcess(MoCapScene moCapScene, Offset offset, double scale) {
-        List<Frame> processFrames = new ArrayList<>();
-        for (Frame frame : moCapScene.getFrames()) {
-            double[] offsetPosition = fourierPreProcessor.offsetPosition(frame, offset);
-            List<Joint> processJoints = fourierPreProcessor.offsetAndScaleAllJoints(frame, offsetPosition, scale);
-            processFrames.add(new Frame(frame.getId(), processJoints));
-        }
-        return processFrames;
-    }
-
-    public List<Frame> easing(List<Frame> frames, int start, int end, int easingFrames) {
-        List<Frame> easedFrames = new ArrayList<>();
-        Frame startFrame = frames.get(start);
-        for (int i = 0; i < frames.size(); i++) {
-            Frame currentFrame = frames.get(i);
-            if (i >= end - easingFrames) {
-                double dx = 1.0 - ((end - i) / easingFrames);
-                easedFrames.add(new Frame(currentFrame.getId(), fourierPreProcessor.easeJoints(startFrame, currentFrame, dx)));
-            } else {
-                easedFrames.add(currentFrame);
+            if (fourierJoints.get(0).isDisplay()) {
+                fourierJointList.add(calculateFourierJoint(fourierJoints, fourierFrames));
             }
         }
-        return easedFrames;
+        return FourierTransform.builder().fourierJoints(fourierJointList).build();
     }
 
-    public Double[][] calculateFourier(List<Joint> joints, int fourierFrames) {
-
-        Double[][] fcs = new Double[fourierFrames][6];
+    public FourierJoint calculateFourierJoint(List<Joint> joints, int fourierFrames) {
+        List<FourierFrame> fourierFrameList = new ArrayList<>();
         int frames = joints.size();
         for (int k = 0;  k < fourierFrames; k++) {
             Double[] fc = new Double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
@@ -65,8 +54,89 @@ public class FourierTransformer {
                 fc[4] += zPos * ex[0];
                 fc[5] += zPos * ex[1];
             }
-            fcs[k] = fc;
+            fourierFrameList.add(FourierFrame.builder()
+                            .fourierX1(fc[0])
+                            .fourierX2(fc[1])
+                            .fourierY1(fc[2])
+                            .fourierY2(fc[3])
+                            .fourierZ1(fc[4])
+                            .fourierZ2(fc[5])
+                    .build());
         }
-        return fcs;
+        return FourierJoint.builder()
+                .jointId(joints.get(0).getId())
+                .fourierFrames(fourierFrameList)
+                .build();
+    }
+
+    public LowResBounds lowResBounds(FourierTransform fourierTransform,
+                                     int cutoff,
+                                     FourierBounds fourierBounds) {
+
+        int[] bounds = fourierBounds(fourierTransform,
+                                     cutoff,
+                                     fourierBounds.getXOffs(),
+                                     fourierBounds.getYOffs(),
+                                     fourierBounds.getZOffs());
+
+        //maximum deviation in fourier data required for low resolution data
+        int maxLowResDevX = bounds[MAXX] - bounds[MINX];
+        int maxLowResDevY = bounds[MAXY] - bounds[MINY];
+        int maxLowResDevZ = bounds[MAXZ] - bounds[MINZ];
+
+        return LowResBounds.builder()
+                .bounds(bounds)
+                .maxLowResDevX(maxLowResDevX)
+                .maxLowResDevY(maxLowResDevY)
+                .maxLowResDevZ(maxLowResDevZ)
+                .lowResScaleEncodeX(maxLowResDevX < 255 ? 1.0f : 255.0f / (float) maxLowResDevX)
+                .lowResScaleDecodeX(maxLowResDevX < 255 ? 1.0f : (float) maxLowResDevX / 255.0f)
+                .lowResScaleEncodeY(maxLowResDevY < 255 ? 1.0f : 255.0f / (float) maxLowResDevY)
+                .lowResScaleDecodeY(maxLowResDevY < 255 ? 1.0f : (float) maxLowResDevY / 255.0f)
+                .lowResScaleEncodeZ(maxLowResDevZ < 255 ? 1.0f : 255.0f / (float) maxLowResDevZ)
+                .lowResScaleDecodeZ(maxLowResDevZ < 255 ? 1.0f : (float) maxLowResDevZ / 255.0f)
+                .build();
+    }
+
+    public FourierBounds fourierBounds(FourierTransform fourierTransform) {
+        int[] bounds = fourierBounds(fourierTransform, 0, 0, 0, 0);
+        return FourierBounds.builder()
+                .bounds(bounds)
+                .xOffs(bounds[MINX] < 0 ? Math.abs(bounds[MINX]) : 0)
+                .yOffs(bounds[MINY] < 0 ? Math.abs(bounds[MINY]) : 0)
+                .zOffs(bounds[MINZ] < 0 ? Math.abs(bounds[MINZ]) : 0).build();
+    }
+
+    private int[] fourierBounds(FourierTransform fourierTransform, int cutoff, int xOffs, int yOffs, int zOffs) {
+        int[] bounds = {Integer.MAX_VALUE, -Integer.MAX_VALUE, Integer.MAX_VALUE, -Integer.MAX_VALUE, Integer.MAX_VALUE, -Integer.MAX_VALUE};
+        fourierTransform.getFourierJoints().stream()
+                .skip(cutoff)
+                .flatMap(fj -> fj.getFourierFrames().stream()).forEach(f -> {
+                    bounds[0] = lower(bounds[0], f.getFourierX1() + xOffs);
+                    bounds[0] = lower(bounds[0], f.getFourierX2() + xOffs);
+                    bounds[1] = higher(bounds[1], f.getFourierX1() + xOffs);
+                    bounds[1] = higher(bounds[1], f.getFourierX2() + xOffs);
+                    bounds[2] = lower(bounds[2], f.getFourierY1() + yOffs);
+                    bounds[2] = lower(bounds[2], f.getFourierY2() + yOffs);
+                    bounds[3] = higher(bounds[3], f.getFourierY1() + yOffs);
+                    bounds[3] = higher(bounds[3], f.getFourierY2() + yOffs);
+                    bounds[4] = lower(bounds[4], f.getFourierZ1() + zOffs);
+                    bounds[4] = lower(bounds[4], f.getFourierZ2() + zOffs);
+                    bounds[5] = higher(bounds[5], f.getFourierZ1() + zOffs);
+                    bounds[5] = higher(bounds[5], f.getFourierZ2() + zOffs);
+                });
+        return bounds;
+    }
+
+    private int higher(int cMax, Double val) {
+        if (val > cMax)
+            return val.intValue();
+        return cMax;
+    }
+
+    private int lower(int cMin, Double val) {
+        if (val < cMin)
+            return val.intValue();
+        return cMin;
     }
 }
