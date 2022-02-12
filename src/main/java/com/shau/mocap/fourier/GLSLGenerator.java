@@ -220,7 +220,14 @@ public class GLSLGenerator implements FourierConstants {
         sbeZ.append(")");
 
         FixedJoint fixedJoint = fixedJoints.get(fourierJoint.getJointId());
-        encBuffer.append(generateJointData("posD", "FFRAMES", sbeX, sbeY, sbeZ, fixedJoint));
+        encBuffer.append(generateJointData("posD",
+                "emptyHiRes",
+                "FFRAMES",
+                sbeX,
+                sbeY,
+                sbeZ,
+                fixedJoint,
+                false));
     }
 
     public void generateCodeLowResData(StringBuilder encBuffer,
@@ -265,31 +272,40 @@ public class GLSLGenerator implements FourierConstants {
         sbeZ.append(")");
 
         FixedJoint fixedJoint = fixedJoints.get(fourierJoint.getJointId());
-        encBuffer.append(generateJointData("posD_LowRes",  "FFRAMES_LOW_RES", sbeX, sbeY, sbeZ, fixedJoint));
+        encBuffer.append(generateJointData("posD_LowRes",
+                "emptyLoRes",
+                "FFRAMES_LOW_RES",
+                sbeX,
+                sbeY,
+                sbeZ,
+                fixedJoint,
+                true));
     }
 
-    private StringBuilder generateJointData(String functionName,
+    private StringBuilder generateJointData(String posDFunctionName,
+                                            String emptyArrayName,
                                             String sFrames,
                                             StringBuilder sbeX,
                                             StringBuilder sbeY,
                                             StringBuilder sbeZ,
-                                            FixedJoint fixedJoint) {
+                                            FixedJoint fixedJoint,
+                                            boolean addValue) {
 
         StringBuilder sbr = new StringBuilder();
         if (fixedJoint != null && fixedJoint.isXFixed() && fixedJoint.isYFixed() && fixedJoint.isZFixed())
             return sbr;
         if (fixedJoint != null && fixedJoint.isXFixed()) {
-            sbr.append("        pos = ").append(functionName).append("(emptyHiRes,").append(LS);
+            sbr.append("        pos ").append(addValue ? "+= " : "= ").append(posDFunctionName).append("(").append(emptyArrayName).append(",").append(LS);
         } else {
-            sbr.append("        pos = ").append(functionName).append("(uint[").append(sFrames).append("] ").append(sbeX).append(",").append(LS);
+            sbr.append("        pos ").append(addValue ? "+= " : "= ").append(posDFunctionName).append("(uint[").append(sFrames).append("] ").append(sbeX).append(",").append(LS);
         }
         if (fixedJoint != null && fixedJoint.isYFixed()) {
-            sbr.append("                   emptyHiRes,").append(LS);
+            sbr.append("                   ").append(emptyArrayName).append(",").append(LS);
         } else {
             sbr.append("                   uint[").append(sFrames).append("] ").append(sbeY).append(",").append(LS);
         }
         if (fixedJoint != null && fixedJoint.isZFixed()) {
-            sbr.append("                   emptyHiRes,h,U);").append(LS);
+            sbr.append("                   ").append(emptyArrayName).append(",h,U);").append(LS);
         } else {
             sbr.append("                   uint[").append(sFrames).append("] ").append(sbeZ).append(",h,U);").append(LS);
         }

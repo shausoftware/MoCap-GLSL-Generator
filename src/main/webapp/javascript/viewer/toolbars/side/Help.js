@@ -41,7 +41,7 @@ const Help = (props) => {
                 </small></p>
                 <p><small>
                     <strong>Save</strong> - save the state of your current session (.mcd file) so that you can return to it later. Select Delete Hidden
-                    Joints Option to permanently remove hidden joints from dataset (large datasets are currently slowing performance).
+                    Joints Option to permanently remove hidden joints from dataset.
                 </small></p>
                 <p><small>
                     <strong>Open</strong> - open a previously saved project (.mcd file). Sample projects are available on the Github repository.
@@ -57,19 +57,14 @@ const Help = (props) => {
                 <h6>Tools Menu</h6>
                 <p><small>
                     <strong>Playback Parameters</strong> - set the start frame, end frame, scale and view of the playback loop. Options are available to ease joints of the last <em>n</em> frames
-                    of the loop to joints at the start frame of loop. This is still a bit of an experiment so it might not work too well. The start and end frame are passed to the Fourier
-                    generation tool.
+                    of the loop to joints at the start frame of loop. The start and end frame are passed to the Fourier generation tool.
                 </small></p>
                 <p><small>
-                    <strong>Offsets</strong> - use this to create offsets for joint data so that data can be centered in the viewer. The current offset state can be seen on this panel.
-                    Manual XYZ offsets can be set or the current offset state can be cleared. Note: Joint offsets are set from the Joint Data panel (see below). This offset is passed to the
-                    Fourier generation tool.
+                    <strong>Offsets</strong> - use this to create offsets for joint data so that data can be centered in the viewer.
+                    Manual XYZ and Joint offsets can be set or cleared.
                 </small></p>
                 <p><small>
-                    <strong>Joint Data</strong> - use this tool to set the display and colour of each joint globally. The XYZ position of each joint can be set for each frame.
-                </small></p>
-                <p><small>
-                    <strong>Analyse</strong> - this displays metadata of the current MoCap scene and can be used to cull empty joint data when saving the project.
+                    <strong>Joint Data</strong> - use this tool to set the display and colour of each joint globally. The XYZ position of each joint can be set for a single frame or globally.
                 </small></p>
                 <p><small>
                     <strong>Fourier</strong> - use this tool to generate GLSL code suitable for Shadertoy. It allows for data compression using Fourier transforms and data encoding.

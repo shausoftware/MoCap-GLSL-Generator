@@ -76,11 +76,11 @@ const Joint = (props) => {
     }
 
     const handleUpdateClick = (e) => {
-        if (!x || x=="") {
+        if (x=='' && x!==0) {
             setErrorX(true);
-        } else if (!y || y=="") {
+        } else if (y=='' && y!==0) {
             setErrorY(true);
-        } else if (!z || z=="") {
+        } else if (z=='' && z!==0) {
             setErrorZ(true);
         } else {
             props.updateJoint(props.frameId,
