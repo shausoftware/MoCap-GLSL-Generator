@@ -1,5 +1,5 @@
 FROM adoptopenjdk/openjdk11:alpine-jre
 WORKDIR /opt/app
-ARG JAR_FILE=build/libs/mocap-1.0.8.jar
+ARG JAR_FILE=build/libs/mocap-1.0.9.jar
 COPY ${JAR_FILE} app.jar
 ENTRYPOINT ["java","-jar","app.jar"]

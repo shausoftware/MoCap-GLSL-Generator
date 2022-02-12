@@ -1,8 +1,11 @@
 package com.shau.mocap.fourier;
 
+import com.shau.mocap.fourier.domain.FixedJoint;
 import com.shau.mocap.fourier.domain.FourierFrame;
 import com.shau.mocap.fourier.domain.FourierJoint;
 import com.shau.mocap.parser.BinaryHelper;
+
+import java.util.Map;
 
 public class GLSLGenerator implements FourierConstants {
 
@@ -183,7 +186,8 @@ public class GLSLGenerator implements FourierConstants {
 
     public void generateCodeHiResData(StringBuilder encBuffer,
                                       FourierJoint fourierJoint,
-                                      int hiResJointLength) {
+                                      int hiResJointLength,
+                                      Map<Integer, FixedJoint> fixedJoints) {
 
         StringBuilder sbeX = new StringBuilder();
         sbeX.append("(");
@@ -215,14 +219,14 @@ public class GLSLGenerator implements FourierConstants {
         sbeY.append(")");
         sbeZ.append(")");
 
-        encBuffer.append("        pos = posD(uint[FFRAMES] ").append(sbeX).append(",").append(LS)
-                 .append("                   uint[FFRAMES] ").append(sbeY).append(",").append(LS)
-                 .append("                   uint[FFRAMES] ").append(sbeZ).append(",h,U);").append(LS);
+        FixedJoint fixedJoint = fixedJoints.get(fourierJoint.getJointId());
+        encBuffer.append(generateJointData("posD", "FFRAMES", sbeX, sbeY, sbeZ, fixedJoint));
     }
 
     public void generateCodeLowResData(StringBuilder encBuffer,
                                        FourierJoint fourierJoint,
-                                       int lowResJointLength) {
+                                       int lowResJointLength,
+                                       Map<Integer, FixedJoint> fixedJoints) {
 
         StringBuilder sbeX = new StringBuilder();
         sbeX.append("(");
@@ -260,9 +264,50 @@ public class GLSLGenerator implements FourierConstants {
         sbeY.append(")");
         sbeZ.append(")");
 
-        encBuffer.append("        pos += posD_LowRes(uint[FFRAMES_LOW_RES] ").append(sbeX).append(",").append(LS)
-                 .append("                           uint[FFRAMES_LOW_RES] ").append(sbeY).append(",").append(LS)
-                 .append("                           uint[FFRAMES_LOW_RES] ").append(sbeZ).append(",h,U);").append(LS);
+        FixedJoint fixedJoint = fixedJoints.get(fourierJoint.getJointId());
+        encBuffer.append(generateJointData("posD_LowRes",  "FFRAMES_LOW_RES", sbeX, sbeY, sbeZ, fixedJoint));
+    }
+
+    private StringBuilder generateJointData(String functionName,
+                                            String sFrames,
+                                            StringBuilder sbeX,
+                                            StringBuilder sbeY,
+                                            StringBuilder sbeZ,
+                                            FixedJoint fixedJoint) {
+
+        StringBuilder sbr = new StringBuilder();
+        if (fixedJoint != null && fixedJoint.isXFixed() && fixedJoint.isYFixed() && fixedJoint.isZFixed())
+            return sbr;
+        if (fixedJoint != null && fixedJoint.isXFixed()) {
+            sbr.append("        pos = ").append(functionName).append("(emptyHiRes,").append(LS);
+        } else {
+            sbr.append("        pos = ").append(functionName).append("(uint[").append(sFrames).append("] ").append(sbeX).append(",").append(LS);
+        }
+        if (fixedJoint != null && fixedJoint.isYFixed()) {
+            sbr.append("                   emptyHiRes,").append(LS);
+        } else {
+            sbr.append("                   uint[").append(sFrames).append("] ").append(sbeY).append(",").append(LS);
+        }
+        if (fixedJoint != null && fixedJoint.isZFixed()) {
+            sbr.append("                   emptyHiRes,h,U);").append(LS);
+        } else {
+            sbr.append("                   uint[").append(sFrames).append("] ").append(sbeZ).append(",h,U);").append(LS);
+        }
+        return sbr;
+    }
+
+    public StringBuilder generatePosData(FixedJoint fixedJoint) {
+        StringBuilder sbr = new StringBuilder();
+        if (fixedJoint != null && fixedJoint.isXFixed()) {
+            sbr.append("        pos.x = ").append(fixedJoint.getXPos()).append(";").append(LS);
+        }
+        if (fixedJoint != null && fixedJoint.isYFixed()) {
+            sbr.append("        pos.y = ").append(fixedJoint.getYPos()).append(";").append(LS);
+        }
+        if (fixedJoint != null && fixedJoint.isZFixed()) {
+            sbr.append("        pos.z = ").append(fixedJoint.getZPos()).append(";").append(LS);
+        }
+        return sbr;
     }
 
     public void generateCodeMainEnd(StringBuilder sb, boolean useLowResolution) {
