@@ -17,9 +17,9 @@ once running open your browser and goto http://localhost:50001
 
 Or a public docker image is also available on Docker Hub
 
-*docker pull shaugraphics/mocapweb:1.0.8*
+*docker pull shaugraphics/mocapweb:1.0.9*
 
-*docker run -p 50001:50001 -d shaugraphics/mocapweb:1.0.8*
+*docker run -p 50001:50001 -d shaugraphics/mocapweb:1.0.9*
 
 A sample project .mcd and generated GLSL fourier code .msh can be found in the samples folder. 
 The project was imported using data from http://mocap.cs.cmu.edu/search.php?subjectnumber=60/60_12.c3d

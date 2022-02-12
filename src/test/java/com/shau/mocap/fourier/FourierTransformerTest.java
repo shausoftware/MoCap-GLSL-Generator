@@ -41,12 +41,12 @@ public class FourierTransformerTest {
     @Test
     public void testTransformOfJoints() {
         int fourierFrames = 2;
-        List<Joint> joints = FourierJointFinder.findJointsByIndex(moCapScene, 0);
+        List<Joint> joints = FourierJointFinder.findJointsByIndex(moCapScene.getFrames(), 0);
         FourierJoint fourierJoint = fourierTransformer.calculateFourierJoint(joints, fourierFrames);
 
         assertThat(fourierJoint.getFourierFrames().size(), is(fourierFrames));
 
-        joints = FourierJointFinder.findJointsByIndex(moCapScene, 2);
+        joints = FourierJointFinder.findJointsByIndex(moCapScene.getFrames(), 2);
         fourierJoint = fourierTransformer.calculateFourierJoint(joints, fourierFrames);
 
         assertThat(fourierJoint.getFourierFrames().size(), is(fourierFrames));

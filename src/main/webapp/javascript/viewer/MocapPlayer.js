@@ -16,7 +16,7 @@ import Help from './toolbars/side/Help';
 
 const MocapPlayer = (props) =>  {
 
-    const API_VERSION = "1.0.8";
+    const API_VERSION = "1.0.9";
     const emptyScene = {filename: '', frames: [], bounds: {minX: 0, minY: 0, minZ: 0, maxX: 0, maxY: 0, maxZ : 0}};
     const defaultOffset = {jointId: undefined,
                            x: '',

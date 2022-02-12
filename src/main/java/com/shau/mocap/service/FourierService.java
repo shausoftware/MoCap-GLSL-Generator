@@ -51,7 +51,7 @@ public class FourierService implements FourierConstants {
         //if (useEasing) {
         //    processFrames = fourierTransformer.easing(processFrames, startFrame, endFrame, easingFrames);
         //}
-        Map<Integer, FixedJoint> fixedJoints = fourierPreProcessor.findFixedJoints(moCapScene);
+        Map<Integer, FixedJoint> fixedJoints = fourierPreProcessor.findFixedJoints(processFrames);
 
         //fourier transform
         FourierTransform fourierTransform = fourierTransformer.createTransform(processFrames,
@@ -120,18 +120,18 @@ public class FourierService implements FourierConstants {
 
         int  i = 0;
         for (FourierJoint fourierJoint : fourierTransform.getFourierJoints()) {
-
             if (i == 0) {
                 shader.append("    if (U==J").append(i + 1).append(") {").append(LS);
             } else {
                 shader.append("    else if (U==J").append(i + 1).append(") {").append(LS);
             }
             StringBuilder encBuffer = new StringBuilder();
-            glslGenerator.generateCodeHiResData(encBuffer, fourierJoint, hiResJointLength);
+            glslGenerator.generateCodeHiResData(encBuffer, fourierJoint, hiResJointLength, fixedJoints);
             if (useLowRes) {
-                glslGenerator.generateCodeLowResData(encBuffer, fourierJoint, lowResJointLength);
+                glslGenerator.generateCodeLowResData(encBuffer, fourierJoint, lowResJointLength, fixedJoints);
             }
             shader.append(encBuffer);
+            shader.append(glslGenerator.generatePosData(fixedJoints.get(fourierJoint.getJointId())));
             shader.append("    }").append(LS);
             i++;
         }

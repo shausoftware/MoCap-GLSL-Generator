@@ -281,7 +281,7 @@ public class FourierPreProcessorTest {
     @Test
     public void testFindFixedJointFromJointList() {
         //Fixed joint found
-        Optional<FixedJoint> fixedJoint = fourierPreProcessor.getFixedJoint(FourierJointFinder.findJointsByIndex(moCapScene, 0));
+        Optional<FixedJoint> fixedJoint = fourierPreProcessor.getFixedJoint(FourierJointFinder.findJointsByIndex(moCapScene.getFrames(), 0));
 
         assertThat(fixedJoint.isPresent(), is(true));
         assertThat(fixedJoint.get().isXFixed(), is(true));
@@ -292,13 +292,13 @@ public class FourierPreProcessorTest {
         assertThat(fixedJoint.get().getZPos(), is(moCapScene.getFrames().get(0).getJoints().get(0).getZ()));
 
         //No fixed joint found
-        fixedJoint = fourierPreProcessor.getFixedJoint(FourierJointFinder.findJointsByIndex(moCapScene, 1));
+        fixedJoint = fourierPreProcessor.getFixedJoint(FourierJointFinder.findJointsByIndex(moCapScene.getFrames(), 1));
         assertThat(fixedJoint.isEmpty(), is(true));
     }
 
     @Test
     public void testFindFixedJointsFromScene() {
-        Map<Integer, FixedJoint> fixedJoints = fourierPreProcessor.findFixedJoints(moCapScene);
+        Map<Integer, FixedJoint> fixedJoints = fourierPreProcessor.findFixedJoints(moCapScene.getFrames());
 
         assertThat(fixedJoints.size(), is(1));
         FixedJoint fixedJoint = fixedJoints.get(0);

@@ -3519,7 +3519,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 var MocapPlayer = function MocapPlayer(props) {
-  var API_VERSION = "1.0.8";
+  var API_VERSION = "1.0.9";
   var emptyScene = {
     filename: '',
     frames: [],

@@ -53,12 +53,12 @@ public class FourierPreProcessor implements FourierConstants {
         ).collect(Collectors.toList());
     }
 
-    public Map<Integer, FixedJoint> findFixedJoints(MoCapScene moCapScene) {
+    public Map<Integer, FixedJoint> findFixedJoints(List<Frame> frames) {
         Map<Integer, FixedJoint> fixedJoints = new HashMap<>();
-        int nJoints = moCapScene.getFrames().get(0).getJoints().size();
+        int nJoints = frames.get(0).getJoints().size();
         for (int i = 0; i < nJoints; i++) {
             int index = i;
-            Optional<FixedJoint> fixedJoint = getFixedJoint(FourierJointFinder.findJointsByIndex(moCapScene, index));
+            Optional<FixedJoint> fixedJoint = getFixedJoint(FourierJointFinder.findJointsByIndex(frames, index));
             if (fixedJoint.isPresent()) {
                 fixedJoints.put(fixedJoint.get().getJointId(), fixedJoint.get());
             }
@@ -82,6 +82,7 @@ public class FourierPreProcessor implements FourierConstants {
         if (fixX || fixY || fixZ) {
             Joint joint = joints.get(0);
             fixedJoint = Optional.of(FixedJoint.builder()
+                    .jointId(joint.getId())
                     .xFixed(fixX)
                     .xPos(fixX ? joint.getX() : null)
                     .yFixed(fixY)
