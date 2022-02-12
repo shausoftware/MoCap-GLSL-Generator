@@ -10,13 +10,12 @@ import Joints from './toolbars/side/Joints';
 import SaveProject from './SaveProject';
 import OpenProject from './OpenProject';
 import Import from './Import';
-import Analyse from './toolbars/side/Analyse';
 import Fourier from './toolbars/Fourier';
 import Help from './toolbars/side/Help';
 
 const MocapPlayer = (props) =>  {
 
-    const API_VERSION = "1.0.9";
+    const API_VERSION = "1.0.10";
     const emptyScene = {filename: '', frames: [], bounds: {minX: 0, minY: 0, minZ: 0, maxX: 0, maxY: 0, maxZ : 0}};
     const defaultOffset = {jointId: undefined,
                            x: '',
@@ -43,7 +42,6 @@ const MocapPlayer = (props) =>  {
                                                                   saveProjectDialog: false,
                                                                   openProjectDialog: false,
                                                                   importDialog: false,
-                                                                  analyseDialog: false,
                                                                   fourierDialog: false,
                                                                   helpDialog: false});
     const [showStats, setShowStats] = React.useState(true);
@@ -226,10 +224,6 @@ const MocapPlayer = (props) =>  {
                      scene={scene}
                      playbackParameters={playbackParameters}
                      offset={offset}
-                     />
-            <Analyse showDialogState={showDialogState}
-                     openDialog={openDialog}
-                     scene={scene}
                      />
             <Help showDialogState={showDialogState}
                   openDialog={openDialog}
