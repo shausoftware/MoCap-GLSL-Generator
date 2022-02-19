@@ -15,6 +15,8 @@ const Import = (props) => {
     const [filePath, setFilePath] = React.useState('');
     const [errorMessage, setErrorMessage] = React.useState(undefined);
 
+    const [scale, setScale] = React.useState(1.0);
+
     let toolsRef = React.useRef();
 
     const closeToolbar = (e) => {
@@ -24,6 +26,7 @@ const Import = (props) => {
     const resetState = () => {
         setSelectedFile(undefined);
         setFilePath('');
+        setScale(1.0);
         setErrorMessage(undefined);
     }
 
@@ -43,6 +46,10 @@ const Import = (props) => {
 	    setSelectedFile(e.target.files[0]);
 	    setErrorMessage(undefined);
 	}
+
+    const handleScaleChange = (e) => {
+        setScale(e.target.value);
+    }
 
     const handleAxisClick = (e) => {
         if (e.target.id == "x") {
@@ -67,6 +74,10 @@ const Import = (props) => {
             valid = false;
             setErrorMessage('Expecting axis assignment with x, y and z values');
         }
+        if (!scale || isNaN(scale) || scale==0) {
+            valid = false;
+            setErrorMessage('Scale must be non-zero numeric');
+        }
         if (valid) {
             const data = new FormData();
             data.append('file', selectedFile);
@@ -82,9 +93,9 @@ const Import = (props) => {
         axisUpdate.frames = axisUpdate.frames.map((frame) => {
             frame.joints = frame.joints.map((joint) => {
                 let jointUpdate = Object.assign({}, joint);
-                jointUpdate.x = joint[assignX];
-                jointUpdate.y = joint[assignY];
-                jointUpdate.z = joint[assignZ];
+                jointUpdate.x = joint[assignX] * scale;
+                jointUpdate.y = joint[assignY] * scale;
+                jointUpdate.z = joint[assignZ] * scale;
                 return jointUpdate;
             });
             return frame;
@@ -127,18 +138,23 @@ const Import = (props) => {
         <div ref={toolsRef} className="modal fade" id="importModal" tabIndex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
             <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content">
-                    <div className="modal-header">
+                    <div className="modal-header bg-dark text-white">
                         <h5 className="modal-title" id="importModalLabel">Import MoCap Data</h5>
-                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={closeToolbar}></button>
+                        <button type="button" className="btn-close bg-light" data-bs-dismiss="modal" aria-label="Close" onClick={closeToolbar}></button>
                     </div>
-                    <div className="modal-body">
+                    <div className="modal-body bg-dark text-white">
                         <p>Import a C3D or TRC motion capture file and start a new project. Note: by default the X,Y,Z axis are transformed to X,Z,Y.</p>
                         {loadError()}
                         <form onSubmit={handleSubmit} encType="multipart/form-data">
                             <div className="mb-3">
                                 <label htmlFor="filePath" className="form-label">Data File Path</label>
-                                <input type="file" accept=".trc,.c3d" multiple={false} onChange={handleFilePathChange} className="form-control" id="filePath" aria-describedby="filePathHelp" />
+                                <input type="file" accept=".trc,.c3d" multiple={false} onChange={handleFilePathChange} value={filePath} className="form-control" id="filePath" aria-describedby="filePathHelp" />
                                 <div id="filePathHelp" className="form-text">Path to C3D or TRC data file.</div>
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="scale" className="form-label">Scale Data</label>
+                                <input type="number" id="scale" className="form-control" onChange={handleScaleChange} value={scale}/>
+                                <div id="scaleHelp" className="form-text">Numeric non-zero scale.</div>
                             </div>
                             <div className="mb-3">
                                 <div className="row">

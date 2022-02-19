@@ -22,13 +22,12 @@ const Help = (props) => {
     });
 
     return(
-
         <div ref={toolsRef} className="offcanvas offcanvas-start" tabIndex="-1" id="offcanvasHelp" aria-labelledby="offcanvasHelpLabel">
-            <div className="offcanvas-header">
+            <div className="offcanvas-header bg-dark text-white">
                 <h5 className="offcanvas-title" id="offcanvasHelpLabel">MoCap GLSL Generator - version {props.apiVersion}</h5>
-                <button type="button" className="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" onClick={closeToolbar}></button>
+                <button type="button" className="btn-close text-reset bg-light" data-bs-dismiss="offcanvas" aria-label="Close" onClick={closeToolbar}></button>
             </div>
-            <div className="offcanvas-body">
+            <div className="offcanvas-body bg-dark text-white">
                 <h6>Overview WIP</h6>
                 <p><small>
                     A tool for loading and editing well formed C3d & TRC motion capture data with the purpose of generating compressed GLSL suitable for applications such as Shadertoy.
