@@ -30,7 +30,9 @@ const ViewParameters = (props) => {
         setEndFrame(props.playbackParameters.endFrame);
         setStartFrameError(false);
         setEndFrameError(false);
-        setUseLoopEasing(props.playbackParameters.useLoopEasing);
+        //TODO: implement
+        //setUseLoopEasing(props.playbackParameters.useLoopEasing);
+        setUseLoopEasing(false);
         setLoopEasingFrames(props.playbackParameters.loopEasingFrames);
         setLoopEasingFramesError(false);
     }
@@ -132,80 +134,76 @@ const ViewParameters = (props) => {
         }
 
         if (props.showDialogState.viewDialog) {
-            toolsRef.current.className = 'modal fade show';
-            toolsRef.current.style.display = "block";
+            toolsRef.current.className = 'offcanvas offcanvas-start show';
+            toolsRef.current.style.visibility = "visible";
         } else {
-            toolsRef.current.className = 'modal fade';
-            toolsRef.current.style.display = "none";
+            toolsRef.current.className = 'offcanvas offcanvas-start';
+            toolsRef.current.style.visibility = "";
         }
     });
 
     return (
-        <div ref={toolsRef} className="modal fade" id="viewParametersModal" tabIndex="-1" aria-labelledby="viewParametersModalLabel" aria-hidden="true">
-            <div className="modal-dialog modal-dialog-centered">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title" id="viewParametersModalLabel">View Parameters</h5>
-                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={closeToolbar}></button>
+        <div ref={toolsRef} className="offcanvas offcanvas-start" tabIndex="-1" id="viewParameters" aria-labelledby="viewParametersLabel">
+            <div className="offcanvas-header bg-dark text-white">
+                <h5 className="offcanvas-title" id="viewParametersLabel">View Parameters</h5>
+                <button type="button" className="btn-close  bg-light" data-bs-dismiss="modal" aria-label="Close" onClick={closeToolbar}></button>
+            </div>
+            <div className="offcanvas-body bg-dark text-white">
+                <form onSubmit={handleViewParametersFormSubmit}>
+                    <fieldset>
+                        <div className="mb-3">
+                            <label htmlFor="startFrame" className="form-label">Start Frame</label>
+                            <input type="number" min="0" className="form-control" id="startFrame" aria-describedby="startFrameHelp" value={startFrame} onChange={handleStartFrameChange}/>
+                            <div id="startFrameHelp" ref={startFrameHelpRef} className="form-text">Expecting a start frame between 0 and {parseInt(endFrame) - 1}</div>
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="endFrame" className="form-label">End Frame</label>
+                            <input type="number" min="1" className="form-control" id="endFrame" aria-describedby="endFrameHelp" value={endFrame} onChange={handleEndFrameChange}/>
+                            <div id="endFrameHelp" ref={endFrameHelpRef} className="form-text">Expecting an end frame between {parseInt(startFrame) + 1} and {props.totalFrames}</div>
+                        </div>
+                        <div className="mb-3">
+                            <div className="row">
+                                <div className="col-1">
+                                    <input type="checkbox" className="form-check-input" id="useLoopEasing" checked={useLoopEasing} onChange={handleUseLoopEasingChange} disabled={true}/>
+                                </div>
+                                <div className="col">
+                                    <label htmlFor="useLoopEasing" className="form-label">Use Loop Easing</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="easingFrames" className="form-label">Easing Frames</label>
+                            <input type="number" min="0" className="form-control" id="easingFrames" aria-describedby="easingFramesHelp" value={loopEasingFrames} onChange={handleEasingFramesChange} disabled={!useLoopEasing}/>
+                            <div id="easingFramesHelp" ref={easingFramesHelpRef} className="form-text">
+                                Expecting value between 0 and {endFrame - startFrame}. Eases joint positions between specified last n frames
+                                of loop and start frame. Not currently implemented.
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div className="mb-3">
+                        <button type="submit" className="btn btn-secondary">Update Loop Parameters</button>
                     </div>
-                    <div className="modal-body">
-                        <form onSubmit={handleViewParametersFormSubmit}>
-                            <fieldset>
-                                <div className="mb-3">
-                                    <label htmlFor="startFrame" className="form-label">Start Frame</label>
-                                    <input type="number" min="0" className="form-control" id="startFrame" aria-describedby="startFrameHelp" value={startFrame} onChange={handleStartFrameChange}/>
-                                    <div id="startFrameHelp" ref={startFrameHelpRef} className="form-text">Expecting a start frame between 0 and {parseInt(endFrame) - 1}</div>
-                                </div>
-                                <div className="mb-3">
-                                    <label htmlFor="endFrame" className="form-label">End Frame</label>
-                                    <input type="number" min="1" className="form-control" id="endFrame" aria-describedby="endFrameHelp" value={endFrame} onChange={handleEndFrameChange}/>
-                                    <div id="endFrameHelp" ref={endFrameHelpRef} className="form-text">Expecting an end frame between {parseInt(startFrame) + 1} and {props.totalFrames}</div>
-                                </div>
-                                <div className="mb-3">
-                                    <div className="row">
-                                        <div className="col-1">
-                                            <input type="checkbox" className="form-check-input" id="useLoopEasing" checked={useLoopEasing} onChange={handleUseLoopEasingChange}/>
-                                        </div>
-                                        <div className="col">
-                                            <label htmlFor="useLoopEasing" className="form-label">Use Loop Easing</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="mb-3">
-                                    <label htmlFor="easingFrames" className="form-label">Easing Frames</label>
-                                    <input type="number" min="0" className="form-control" id="easingFrames" aria-describedby="easingFramesHelp" value={loopEasingFrames} onChange={handleEasingFramesChange} disabled={!useLoopEasing}/>
-                                    <div id="easingFramesHelp" ref={easingFramesHelpRef} className="form-text">
-                                        Expecting value between 0 and {endFrame - startFrame}. Eases joint positions between specified last n frames
-                                        of loop and start frame.
-                                    </div>
-                                </div>
-                            </fieldset>
-                            <div className="mb-3">
-                                <button type="submit" className="btn btn-secondary">Update Loop Parameters</button>
-                            </div>
-                        </form>
-                        <div className="mb-3">
-                            <label htmlFor="scale" className="form-label">Scale</label>
-                            <div className="dropdown">
-                                <button className="btn btn-secondary dropdown-toggle" type="button" id="scale" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Scale
-                                </button>
-                                <ul className="dropdown-menu" aria-labelledby="scale">
-                                    {loadScaleOptions()}
-                                </ul>
-                            </div>
-                        </div>
-                        <div className="mb-3">
-                            <label htmlFor="view" className="form-label">View</label>
-                            <div className="dropdown">
-                                <button className="btn btn-secondary dropdown-toggle" type="button" id="view" data-bs-toggle="dropdown" aria-expanded="false">
-                                    View
-                                </button>
-                                <ul className="dropdown-menu" aria-labelledby="view">
-                                    {loadViewOptions()}
-                                </ul>
-                            </div>
-                        </div>
+                </form>
+                <div className="mb-3">
+                    <label htmlFor="scale" className="form-label">Scale</label>
+                    <div className="dropdown">
+                        <button className="btn btn-secondary dropdown-toggle" type="button" id="scale" data-bs-toggle="dropdown" aria-expanded="false">
+                            Scale
+                        </button>
+                        <ul className="dropdown-menu" aria-labelledby="scale">
+                            {loadScaleOptions()}
+                        </ul>
+                    </div>
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="view" className="form-label">View</label>
+                    <div className="dropdown">
+                        <button className="btn btn-secondary dropdown-toggle" type="button" id="view" data-bs-toggle="dropdown" aria-expanded="false">
+                            View
+                        </button>
+                        <ul className="dropdown-menu" aria-labelledby="view">
+                            {loadViewOptions()}
+                        </ul>
                     </div>
                 </div>
             </div>

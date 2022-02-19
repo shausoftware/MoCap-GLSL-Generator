@@ -16,7 +16,7 @@ const ViewerUI = (props) => {
     }
 
     const updateCurrentFrame = (frame) => {
-        if (frame && !isNaN(frame) && frame >= 0 && frame < props.scene.frames.length) {
+        if (frame > -1 && frame < props.scene.frames.length) {
             setCurrentFrame(parseInt(frame));
         }
     }

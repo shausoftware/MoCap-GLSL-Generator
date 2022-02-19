@@ -69,11 +69,11 @@ const Joints = (props) => {
 
     return (
         <div ref={toolsRef} className="offcanvas offcanvas-start" tabIndex="-1" id="offcanvasLoopParameters" aria-labelledby="offcanvasToolsLabel">
-            <div className="offcanvas-header">
+            <div className="offcanvas-header bg-dark text-white">
                 <h5 className="offcanvas-title" id="offcanvasToolsLabel">Joint Data</h5>
-                <button type="button" className="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" onClick={closeToolbar}></button>
+                <button type="button" className="btn-close text-reset bg-light" data-bs-dismiss="offcanvas" aria-label="Close" onClick={closeToolbar}></button>
             </div>
-            <div className="offcanvas-body">
+            <div className="offcanvas-body bg-dark text-white">
                 <p className="lead">Joints for Frame: {frameId}</p>
                 <div className="mb-3">
                     <div className="dropdown">

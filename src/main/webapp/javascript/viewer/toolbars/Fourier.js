@@ -167,11 +167,11 @@ const Fourier = (props) => {
         <div ref={toolsRef} className="modal fade" id="fourierModal" tabIndex="-1" aria-labelledby="fourierModalLabel" aria-hidden="true">
             <div className="modal-dialog modal-dialog-centered">
                <div className="modal-content">
-                    <div className="modal-header">
+                    <div className="modal-header bg-dark text-white">
                         <h5 className="modal-title" id="fourierModalLabel">Generate Fourier</h5>
-                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={closeToolbar}></button>
+                        <button type="button" className="btn-close bg-light" data-bs-dismiss="modal" aria-label="Close" onClick={closeToolbar}></button>
                     </div>
-                    <div className="modal-body">
+                    <div className="modal-body bg-dark text-white">
                         <p>Generate and download a fourier transform of selected data for use in GLSL shaders. Using less fourier frames results
                             in greater compression. The output can be further compressed by encoding high frequency (less significant) fourier frames into 8 bits
                             (normally 16 bits).

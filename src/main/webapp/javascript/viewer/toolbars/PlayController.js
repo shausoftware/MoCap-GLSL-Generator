@@ -16,7 +16,10 @@ const PlayController = (props) => {
 
     const handleCurrentFrameChange = (e) => {
         e.preventDefault();
-        props.updateCurrentFrame(e.target.value);
+        let frame = e.target.value;
+        if (frame && !isNaN(frame)) {
+            props.updateCurrentFrame(frame);
+        }
     }
 
     const loadFrameDurationOptions = () => {

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: mocapwebapp
-        image: shaugraphics/mocapweb:1.0.1
+        image: shaugraphics/mocapweb:1.0.11
         imagePullPolicy: Always
         ports:
-        - containerPort: 50001
+        - containerPort: 80

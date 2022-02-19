@@ -155,66 +155,61 @@ const Offset = (props) => {
         }
 
         if (props.showDialogState.offsetDialog)  {
-            toolsRef.current.className = 'modal fade show';
-            toolsRef.current.style.display = "block";
+            toolsRef.current.className = 'offcanvas offcanvas-start show';
+            toolsRef.current.style.visibility = "visible";
         } else {
-            toolsRef.current.className = 'modal fade';
-            toolsRef.current.style.display = "none";
+            toolsRef.current.className = 'offcanvas offcanvas-start';
+            toolsRef.current.style.visibility = "";
         }
     });
 
     return(
-        <div ref={toolsRef} className="modal fade" id="offsetModal" tabIndex="-1" aria-labelledby="offsetModalLabel" aria-hidden="true">
-            <div className="modal-dialog modal-dialog-centered">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title" id="offsetModalLabel">Offsets</h5>
-                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={closeToolbar}></button>
-                    </div>
-                    <div className="modal-body">
-                        <form onSubmit={handleOffsetFormSubmit}>
-                            <fieldset>
-                                <div className="mb-3">
-                                    <div className="dropdown">
-                                        <button className="btn btn-secondary btn-sm dropdown-toggle" type="button" id="jointId" data-bs-toggle="dropdown" aria-expanded="false">
-                                            Centre Joint ID
-                                        </button>
-                                        <ul className="dropdown-menu scrollable-menu" aria-labelledby="assignX">
-                                            {jointIdOptions()}
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div className="mb-3">
-                                    <label htmlFor="offsetX" className="form-label">Offset X</label>
-                                    <input type="number" className="form-control" id="offsetX" aria-describedby="offsetXHelp" value={offsetX} onChange={handleOffsetXChange} disabled={jointId}/>
-                                    <div id="offsetXHelp" ref={offsetXHelpRef} className="form-text">Expecting X, Y, Z offset values}</div>
-                                </div>
-                                <div className="mb-3">
-                                    <label htmlFor="offsetY" className="form-label">Offset Y</label>
-                                    <input type="number" className="form-control" id="offsetY" aria-describedby="offsetYHelp" value={offsetY} onChange={handleOffsetYChange} disabled={jointId}/>
-                                    <div id="offsetYHelp" ref={offsetYHelpRef} className="form-text">Expecting X, Y, Z offset values}</div>
-                                </div>
-                                <div className="mb-3">
-                                    <label htmlFor="offsetZ" className="form-label">Offset Z</label>
-                                    <input type="number" className="form-control" id="offsetZ" aria-describedby="offsetZHelp" value={offsetZ} onChange={handleOffsetZChange} disabled={jointId}/>
-                                    <div id="offsetZHelp" ref={offsetZHelpRef} className="form-text">Expecting X, Y, Z offset values}</div>
-                                </div>
-                            </fieldset>
-                            <div className="mb-3 text-center">
-                                <div className="btn-group" role="group" aria-label="Constraints">
-                                    <button type="button" className={constrainX ? "btn btn-success" : "btn btn-dark"} onClick={handleConstrainXClick}>Constrain X</button>
-                                    <button type="button" className={constrainY ? "btn btn-success" : "btn btn-dark"} onClick={handleConstrainYClick}>Constrain Y</button>
-                                    <button type="button" className={constrainZ ? "btn btn-success" : "btn btn-dark"} onClick={handleConstrainZClick}>Constrain Z</button>
-                                </div>
+        <div ref={toolsRef} className="offcanvas offcanvas-start" tabIndex="-1" id="offset" aria-labelledby="offsetLabel">
+            <div className="offcanvas-header bg-dark text-white">
+                <h5 className="offcanvas-title" id="offsetModalLabel">Offsets</h5>
+                <button type="button" className="btn-close bg-light" data-bs-dismiss="modal" aria-label="Close" onClick={closeToolbar}></button>
+            </div>
+            <div className="offcanvas-body bg-dark text-white">
+                <form onSubmit={handleOffsetFormSubmit}>
+                    <fieldset>
+                        <div className="mb-3">
+                            <div className="dropdown">
+                                <button className="btn btn-secondary btn-sm dropdown-toggle" type="button" id="jointId" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Centre Joint ID
+                                </button>
+                                <ul className="dropdown-menu scrollable-menu" aria-labelledby="assignX">
+                                    {jointIdOptions()}
+                                </ul>
                             </div>
-                            <div className="text-center">
-                                <button type="submit" className="btn btn-secondary">Update Offset</button>
-                                <button type="button" className="btn btn-secondary" onClick={handleClearOffsetsClick}>Clear Offsets</button>
-                            </div>
-
-                        </form>
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="offsetX" className="form-label">Offset X</label>
+                            <input type="number" className="form-control" id="offsetX" aria-describedby="offsetXHelp" value={offsetX} onChange={handleOffsetXChange} disabled={jointId}/>
+                            <div id="offsetXHelp" ref={offsetXHelpRef} className="form-text">Expecting X, Y, Z offset values}</div>
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="offsetY" className="form-label">Offset Y</label>
+                            <input type="number" className="form-control" id="offsetY" aria-describedby="offsetYHelp" value={offsetY} onChange={handleOffsetYChange} disabled={jointId}/>
+                            <div id="offsetYHelp" ref={offsetYHelpRef} className="form-text">Expecting X, Y, Z offset values}</div>
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="offsetZ" className="form-label">Offset Z</label>
+                            <input type="number" className="form-control" id="offsetZ" aria-describedby="offsetZHelp" value={offsetZ} onChange={handleOffsetZChange} disabled={jointId}/>
+                            <div id="offsetZHelp" ref={offsetZHelpRef} className="form-text">Expecting X, Y, Z offset values}</div>
+                        </div>
+                    </fieldset>
+                    <div className="mb-3 text-center">
+                        <div className="btn-group" role="group" aria-label="Constraints">
+                            <button type="button" className={constrainX ? "btn btn-success" : "btn btn-dark"} onClick={handleConstrainXClick}>Constrain X</button>
+                            <button type="button" className={constrainY ? "btn btn-success" : "btn btn-dark"} onClick={handleConstrainYClick}>Constrain Y</button>
+                            <button type="button" className={constrainZ ? "btn btn-success" : "btn btn-dark"} onClick={handleConstrainZClick}>Constrain Z</button>
+                        </div>
                     </div>
-                </div>
+                    <div className="text-center">
+                        <button type="submit" className="btn btn-secondary">Update Offset</button>
+                        <button type="button" className="btn btn-secondary" onClick={handleClearOffsetsClick}>Clear Offsets</button>
+                    </div>
+                </form>
             </div>
         </div>
     );

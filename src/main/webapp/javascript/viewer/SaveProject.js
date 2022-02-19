@@ -85,11 +85,11 @@ const SaveProject = (props) => {
         <div ref={toolsRef} className="modal fade" id="saveProjectModal" tabIndex="-1" aria-labelledby="saveProjectModalLabel" aria-hidden="true">
             <div className="modal-dialog modal-dialog-centered">
                <div className="modal-content">
-                    <div className="modal-header">
+                    <div className="modal-header bg-dark text-white">
                         <h5 className="modal-title" id="saveProjectModalLabel">Save Project</h5>
-                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" onClick={closeToolbar}></button>
+                        <button type="button" className="btn-close bg-light" data-bs-dismiss="modal" aria-label="Close" onClick={closeToolbar}></button>
                     </div>
-                    <div className="modal-body">
+                    <div className="modal-body bg-dark text-white">
 
                         <p>Save the current state of the project.</p>
 
@@ -112,7 +112,7 @@ const SaveProject = (props) => {
                         </div>
 
                     </div>
-                    <div className="modal-footer">
+                    <div className="modal-footer bg-dark text-white">
                         <a className="invisible" download={filename + ".mcd"} href={fileDownloadUrl} ref={downloadRef}>download data</a>
                         <button type="button" className="btn btn-secondary" onClick={downloadProject}>Download Project</button>
                     </div>
