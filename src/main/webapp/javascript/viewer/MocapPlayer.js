@@ -15,7 +15,7 @@ import Help from './toolbars/side/Help';
 
 const MocapPlayer = (props) =>  {
 
-    const API_VERSION = "1.0.11";
+    const API_VERSION = "1.0.12";
     const emptyScene = {filename: '', frames: [], bounds: {minX: 0, minY: 0, minZ: 0, maxX: 0, maxY: 0, maxZ : 0}};
     const defaultOffset = {jointId: undefined,
                            x: '',
@@ -48,6 +48,7 @@ const MocapPlayer = (props) =>  {
     const [updateProps, setUpdateProps] = React.useState(false); //TODO: this forces update of React properties to popups/toolbars. It's ugly
 
     const importScene = (newScene) => {
+        setPlaybackParameters(defaultPlaybackParameters);
         setScene(newScene);
         let newPlaybackParameters = {...defaultPlaybackParameters, endFrame: newScene.frames.length};
         setPlaybackParameters(newPlaybackParameters);
@@ -56,7 +57,8 @@ const MocapPlayer = (props) =>  {
     }
 
     const openProject = (newProject) => {
-        updateProjectApis(newProject);
+        setPlaybackParameters(defaultPlaybackParameters);
+        //updateProjectApis(newProject);
         setScene(newProject.scene);
         setPlaybackParameters(newProject.playbackParameters);
         setOffset(newProject.offset);

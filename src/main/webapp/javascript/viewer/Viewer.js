@@ -37,9 +37,9 @@ const Viewer = (props) => {
         let scale = props.playbackParameters.scale;
         if (props.offset.jointId) {
             let offset = frame.joints.filter(joint => joint.id == props.offset.jointId)[0];
-            sceneOffset = { x: props.offset.constrainX ? offset.x : 0.0,
-                y: props.offset.constrainY ? offset.y : 0.0,
-                z: props.offset.constrainZ ? offset.z : 0.0};
+            sceneOffset = { x: props.offset.constrainX  && offset ? offset.x : 0.0,
+                y: props.offset.constrainY && offset ? offset.y : 0.0,
+                z: props.offset.constrainZ && offset ? offset.z : 0.0};
             screenOffset = {x: width / 2, y: height / 2};
         } else if (props.offset.x && props.offset.x != '' &&
                    props.offset.y && props.offset.y != '' &&
@@ -55,7 +55,7 @@ const Viewer = (props) => {
             context.fillStyle = "black";
             context.fillRect(0, 0, width, height);
 
-            let useEasing = props.playbackParameters.useLoopEasing && props.currentFrame >= (props.playbackParameters.endFrame - props.playbackParameters.loopEasingFrames);
+            //let useEasing = props.playbackParameters.useLoopEasing && props.currentFrame >= (props.playbackParameters.endFrame - props.playbackParameters.loopEasingFrames);
 
             if (frame) {
                 for (var i = 0; i < frame.joints.length; i++) {
@@ -66,12 +66,14 @@ const Viewer = (props) => {
                         let y = (joint.y - sceneOffset.y) * scale;
                         let z = (joint.z - sceneOffset.z) * scale;
 
+                        /*
                         if (useEasing) {
                             let dt = 1.0 - ((props.playbackParameters.endFrame - props.currentFrame) / props.playbackParameters.loopEasingFrames);
                             x += (((startFrameJoint.x - sceneOffset.x) * scale) - x) * dt;
                             y += (((startFrameJoint.y - sceneOffset.y) * scale) - y) * dt;
                             z += (((startFrameJoint.z - sceneOffset.z) * scale) - z) * dt;
                         }
+                         */
                         //view projection
                         let xPos = x + screenOffset.x;
                         let yPos = height - y - screenOffset.y;
@@ -99,7 +101,7 @@ const Viewer = (props) => {
                 context.fillText("Total Frames: " + props.totalFrames, width - xText, 100);
                 context.fillText("Scale: " + props.playbackParameters.scale, width - xText, 120);
                 context.fillText("View: " + props.playbackParameters.view, width - xText, 140);
-                context.fillText("Easing: " + useEasing, width - xText, 160);
+                //context.fillText("Easing: " + useEasing, width - xText, 160);
             }
         };
 
