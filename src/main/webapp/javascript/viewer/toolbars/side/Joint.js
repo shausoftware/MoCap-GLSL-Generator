@@ -35,6 +35,7 @@ const Joint = (props) => {
     }
 
     const resetState = () => {
+
         setDisplay(props.joint.display);
         setColour(props.joint.colour);
         setX(props.joint.x);

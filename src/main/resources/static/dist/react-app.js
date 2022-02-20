@@ -3621,6 +3621,7 @@ var MocapPlayer = function MocapPlayer(props) {
 
 
   var importScene = function importScene(newScene) {
+    setPlaybackParameters(defaultPlaybackParameters);
     setScene(newScene);
 
     var newPlaybackParameters = _objectSpread(_objectSpread({}, defaultPlaybackParameters), {}, {
@@ -3633,7 +3634,8 @@ var MocapPlayer = function MocapPlayer(props) {
   };
 
   var openProject = function openProject(newProject) {
-    updateProjectApis(newProject);
+    setPlaybackParameters(defaultPlaybackParameters); //updateProjectApis(newProject);
+
     setScene(newProject.scene);
     setPlaybackParameters(newProject.playbackParameters);
     setOffset(newProject.offset);
@@ -4227,9 +4229,9 @@ var Viewer = function Viewer(props) {
         return joint.id == props.offset.jointId;
       })[0];
       sceneOffset = {
-        x: props.offset.constrainX ? offset.x : 0.0,
-        y: props.offset.constrainY ? offset.y : 0.0,
-        z: props.offset.constrainZ ? offset.z : 0.0
+        x: props.offset.constrainX && offset ? offset.x : 0.0,
+        y: props.offset.constrainY && offset ? offset.y : 0.0,
+        z: props.offset.constrainZ && offset ? offset.z : 0.0
       };
       screenOffset = {
         x: width / 2,
@@ -4250,8 +4252,7 @@ var Viewer = function Viewer(props) {
     var render = function render() {
       //context.clearRect(0, 0, width, height);
       context.fillStyle = "black";
-      context.fillRect(0, 0, width, height);
-      var useEasing = props.playbackParameters.useLoopEasing && props.currentFrame >= props.playbackParameters.endFrame - props.playbackParameters.loopEasingFrames;
+      context.fillRect(0, 0, width, height); //let useEasing = props.playbackParameters.useLoopEasing && props.currentFrame >= (props.playbackParameters.endFrame - props.playbackParameters.loopEasingFrames);
 
       if (frame) {
         for (var i = 0; i < frame.joints.length; i++) {
@@ -4262,14 +4263,15 @@ var Viewer = function Viewer(props) {
             var x = (joint.x - sceneOffset.x) * scale;
             var y = (joint.y - sceneOffset.y) * scale;
             var z = (joint.z - sceneOffset.z) * scale;
-
+            /*
             if (useEasing) {
-              var dt = 1.0 - (props.playbackParameters.endFrame - props.currentFrame) / props.playbackParameters.loopEasingFrames;
-              x += ((startFrameJoint.x - sceneOffset.x) * scale - x) * dt;
-              y += ((startFrameJoint.y - sceneOffset.y) * scale - y) * dt;
-              z += ((startFrameJoint.z - sceneOffset.z) * scale - z) * dt;
-            } //view projection
-
+                let dt = 1.0 - ((props.playbackParameters.endFrame - props.currentFrame) / props.playbackParameters.loopEasingFrames);
+                x += (((startFrameJoint.x - sceneOffset.x) * scale) - x) * dt;
+                y += (((startFrameJoint.y - sceneOffset.y) * scale) - y) * dt;
+                z += (((startFrameJoint.z - sceneOffset.z) * scale) - z) * dt;
+            }
+             */
+            //view projection
 
             var xPos = x + screenOffset.x;
             var yPos = height - y - screenOffset.y;
@@ -4298,8 +4300,7 @@ var Viewer = function Viewer(props) {
         context.fillText("End Frame: " + props.playbackParameters.endFrame, width - xText, 80);
         context.fillText("Total Frames: " + props.totalFrames, width - xText, 100);
         context.fillText("Scale: " + props.playbackParameters.scale, width - xText, 120);
-        context.fillText("View: " + props.playbackParameters.view, width - xText, 140);
-        context.fillText("Easing: " + useEasing, width - xText, 160);
+        context.fillText("View: " + props.playbackParameters.view, width - xText, 140); //context.fillText("Easing: " + useEasing, width - xText, 160);
       }
     };
 
@@ -5024,7 +5025,7 @@ var Offset = function Offset(props) {
   }, "Offsets"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("button", {
     type: "button",
     className: "btn-close bg-light",
-    "data-bs-dismiss": "modal",
+    "data-bs-dismiss": "offcanvas",
     "aria-label": "Close",
     onClick: closeToolbar
   })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
@@ -5545,7 +5546,7 @@ var ViewParameters = function ViewParameters(props) {
   }, "View Parameters"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("button", {
     type: "button",
     className: "btn-close  bg-light",
-    "data-bs-dismiss": "modal",
+    "data-bs-dismiss": "offcanvas",
     "aria-label": "Close",
     onClick: closeToolbar
   })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
@@ -6103,7 +6104,7 @@ var Joints = function Joints(props) {
     className: "dropdown-menu scrollable-menu",
     "aria-labelledby": "assignX"
   }, frameIdOptions()))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("table", {
-    className: "table"
+    className: "table text-white"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("thead", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("th", null, "ID"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("th", null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("th", null, "Display"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("th", null, "Colour"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("th", null, "X"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("th", null, "GlobalX"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("th", null, "Y"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("th", null, "GlobalY"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("th", null, "Z"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("th", null, "GlobalZ"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("tbody", null, loadRows()))));
 };
 

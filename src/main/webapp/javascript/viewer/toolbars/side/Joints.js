@@ -85,7 +85,7 @@ const Joints = (props) => {
                         </ul>
                     </div>
                 </div>
-                <table className="table">
+                <table className="table text-white">
                     <thead>
                         <tr>
                             <th>ID</th>

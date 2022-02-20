@@ -146,7 +146,7 @@ const ViewParameters = (props) => {
         <div ref={toolsRef} className="offcanvas offcanvas-start" tabIndex="-1" id="viewParameters" aria-labelledby="viewParametersLabel">
             <div className="offcanvas-header bg-dark text-white">
                 <h5 className="offcanvas-title" id="viewParametersLabel">View Parameters</h5>
-                <button type="button" className="btn-close  bg-light" data-bs-dismiss="modal" aria-label="Close" onClick={closeToolbar}></button>
+                <button type="button" className="btn-close  bg-light" data-bs-dismiss="offcanvas" aria-label="Close" onClick={closeToolbar}></button>
             </div>
             <div className="offcanvas-body bg-dark text-white">
                 <form onSubmit={handleViewParametersFormSubmit}>
