@@ -7,7 +7,6 @@ import { useLayoutEffect } from 'react';
 const Viewer = (props) => {
 
     const [viewerSize, setViewerSize] = React.useState([500, 500]);
-    const [node, setNode]  = React.useState(null);
 
     let canvasRef = React.useRef();
     let viewerRef = React.useRef();
@@ -26,7 +25,6 @@ const Viewer = (props) => {
         let canvas = canvasRef.current;
         let context = canvas.getContext('2d');
         context.font = '12px serif';
-
         let width = canvas.width;
         let height = canvas.height;
 
@@ -35,62 +33,64 @@ const Viewer = (props) => {
         let sceneOffset = {x: bounds.minX, y: bounds.minY, z: bounds.minZ};
         let screenOffset = {x: 0, y: 0};
         let scale = props.playbackParameters.scale;
-        if (props.offset.jointId) {
-            let offset = frame.joints.filter(joint => joint.id == props.offset.jointId)[0];
-            sceneOffset = { x: props.offset.constrainX  && offset ? offset.x : 0.0,
-                y: props.offset.constrainY && offset ? offset.y : 0.0,
-                z: props.offset.constrainZ && offset ? offset.z : 0.0};
-            screenOffset = {x: width / 2, y: height / 2};
-        } else if (props.offset.x && props.offset.x != '' &&
-                   props.offset.y && props.offset.y != '' &&
-                   props.offset.z && props.offset.z != '') {
-            sceneOffset = {x: props.offset.constrainX ? props.offset.x : 0.0,
-                y: props.offset.constrainY ? props.offset.y : 0.0,
-                z: props.offset.constrainZ ? props.offset.z : 0.0};
-            screenOffset = {x: width / 2, y: height / 2};
-        }
 
         const render = () => {
             //context.clearRect(0, 0, width, height);
             context.fillStyle = "black";
             context.fillRect(0, 0, width, height);
 
-            //let useEasing = props.playbackParameters.useLoopEasing && props.currentFrame >= (props.playbackParameters.endFrame - props.playbackParameters.loopEasingFrames);
+            const renderFrame = (f, showStart) => {
+                if (f) {
+                    if (props.offset.jointId) {
+                        let offset = f.joints.filter(joint => joint.id == props.offset.jointId)[0];
+                        sceneOffset = { x: props.offset.constrainX && offset ? offset.x : 0.0,
+                            y: props.offset.constrainY && offset ? offset.y : 0.0,
+                            z: props.offset.constrainZ && offset ? offset.z : 0.0};
+                        screenOffset = {x: width / 2, y: height / 2};
+                    } else if (props.offset.x && props.offset.x != '' &&
+                        props.offset.y && props.offset.y != '' &&
+                        props.offset.z && props.offset.z != '') {
+                        sceneOffset = {x: props.offset.constrainX ? props.offset.x : 0.0,
+                            y: props.offset.constrainY ? props.offset.y : 0.0,
+                            z: props.offset.constrainZ ? props.offset.z : 0.0};
+                        screenOffset = {x: width / 2, y: height / 2};
+                    }
 
-            if (frame) {
-                for (var i = 0; i < frame.joints.length; i++) {
-                    let joint = frame.joints[i];
-                    let startFrameJoint = props.scene.frames[props.playbackParameters.startFrame].joints[i];
-                    if (joint.display) {
-                        let x = (joint.x - sceneOffset.x) * scale;
-                        let y = (joint.y - sceneOffset.y) * scale;
-                        let z = (joint.z - sceneOffset.z) * scale;
+                    for (var i = 0; i < f.joints.length; i++) {
+                        let joint = f.joints[i];
+                        if (joint.display) {
+                            let x = (joint.x - sceneOffset.x) * scale;
+                            let y = (joint.y - sceneOffset.y) * scale;
+                            let z = (joint.z - sceneOffset.z) * scale;
 
-                        /*
-                        if (useEasing) {
-                            let dt = 1.0 - ((props.playbackParameters.endFrame - props.currentFrame) / props.playbackParameters.loopEasingFrames);
-                            x += (((startFrameJoint.x - sceneOffset.x) * scale) - x) * dt;
-                            y += (((startFrameJoint.y - sceneOffset.y) * scale) - y) * dt;
-                            z += (((startFrameJoint.z - sceneOffset.z) * scale) - z) * dt;
+                            //view projection
+                            let xPos = x + screenOffset.x;
+                            let yPos = height - y - screenOffset.y;
+                            if (props.playbackParameters.view == "YZ") {
+                                xPos = z + screenOffset.x;
+                            } else if (props.playbackParameters.view == "XZ") {
+                                yPos = height - z - screenOffset.y;
+                            }
+
+                            if (showStart) {
+                                context.fillStyle = "grey";
+                            } else {
+                                context.fillStyle = joint.colour;
+                            }
+                            context.beginPath();
+                            context.arc(xPos, yPos, 4, 0, 2 * Math.PI);
+                            context.fill();
+                            context.fillText("J:" + joint.id, xPos + 10, yPos + 10);
                         }
-                         */
-                        //view projection
-                        let xPos = x + screenOffset.x;
-                        let yPos = height - y - screenOffset.y;
-                        if (props.playbackParameters.view == "YZ") {
-                            xPos = z + screenOffset.x;
-                        } else if (props.playbackParameters.view == "XZ") {
-                            yPos = height - z - screenOffset.y;
-                        }
-
-                        context.fillStyle = joint.colour;
-                        context.beginPath();
-                        context.arc(xPos, yPos, 4, 0, 2 * Math.PI);
-                        context.fill();
-                        context.fillText("J:" + joint.id, xPos + 10, yPos + 10);
                     }
                 }
+            };
+
+            renderFrame(frame, false);
+            if (props.playbackParameters.showLoopStart) {
+                renderFrame(props.scene.frames[props.playbackParameters.startFrame], true);
             }
+
             if (props.showStats) {
                 const xText = 150;
                 context.fillStyle = "white";
@@ -101,7 +101,6 @@ const Viewer = (props) => {
                 context.fillText("Total Frames: " + props.totalFrames, width - xText, 100);
                 context.fillText("Scale: " + props.playbackParameters.scale, width - xText, 120);
                 context.fillText("View: " + props.playbackParameters.view, width - xText, 140);
-                //context.fillText("Easing: " + useEasing, width - xText, 160);
             }
         };
 

@@ -15,7 +15,7 @@ import Help from './toolbars/side/Help';
 
 const MocapPlayer = (props) =>  {
 
-    const API_VERSION = "1.0.12";
+    const API_VERSION = "1.0.13";
     const emptyScene = {filename: '', frames: [], bounds: {minX: 0, minY: 0, minZ: 0, maxX: 0, maxY: 0, maxZ : 0}};
     const defaultOffset = {jointId: undefined,
                            x: '',
@@ -29,6 +29,7 @@ const MocapPlayer = (props) =>  {
                                        useLoopEasing: false,
                                        loopEasingFrames: 0,
                                        frameDuration: 128,
+                                       showLoopStart: false,
                                        scale: 1.0,
                                        view: "XY"};
 
@@ -65,14 +66,10 @@ const MocapPlayer = (props) =>  {
         openDialog('openProjectDialog'); //close
     }
 
+    /*
     const updateProjectApis = (newProject) => {
-        //pre 1.0.5
-        if (!newProject.offset.constrainX) {
-            newProject.offset.constrainX = true;
-            newProject.offset.constrainY = true;
-            newProject.offset.constrainZ = true;
-        }
     }
+    */
 
     const openDialog = (dialog) => {
         let newDialogState = Object.assign({}, showDialogState);

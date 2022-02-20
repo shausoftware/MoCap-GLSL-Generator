@@ -3547,7 +3547,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 var MocapPlayer = function MocapPlayer(props) {
-  var API_VERSION = "1.0.11";
+  var API_VERSION = "1.0.13";
   var emptyScene = {
     filename: '',
     frames: [],
@@ -3575,6 +3575,7 @@ var MocapPlayer = function MocapPlayer(props) {
     useLoopEasing: false,
     loopEasingFrames: 0,
     frameDuration: 128,
+    showLoopStart: false,
     scale: 1.0,
     view: "XY"
   };
@@ -3641,15 +3642,11 @@ var MocapPlayer = function MocapPlayer(props) {
     setOffset(newProject.offset);
     openDialog('openProjectDialog'); //close
   };
+  /*
+  const updateProjectApis = (newProject) => {
+  }
+  */
 
-  var updateProjectApis = function updateProjectApis(newProject) {
-    //pre 1.0.5
-    if (!newProject.offset.constrainX) {
-      newProject.offset.constrainX = true;
-      newProject.offset.constrainY = true;
-      newProject.offset.constrainZ = true;
-    }
-  };
 
   var openDialog = function openDialog(dialog) {
     var newDialogState = Object.assign({}, showDialogState);
@@ -4185,12 +4182,8 @@ var Viewer = function Viewer(props) {
   var _React$useState = react__WEBPACK_IMPORTED_MODULE_1__.useState([500, 500]),
       _React$useState2 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState, 2),
       viewerSize = _React$useState2[0],
-      setViewerSize = _React$useState2[1];
+      setViewerSize = _React$useState2[1]; //   const [node, setNode]  = React.useState(null);
 
-  var _React$useState3 = react__WEBPACK_IMPORTED_MODULE_1__.useState(null),
-      _React$useState4 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState3, 2),
-      node = _React$useState4[0],
-      setNode = _React$useState4[1];
 
   var canvasRef = react__WEBPACK_IMPORTED_MODULE_1__.useRef();
   var viewerRef = react__WEBPACK_IMPORTED_MODULE_1__.useRef();
@@ -4224,71 +4217,74 @@ var Viewer = function Viewer(props) {
     };
     var scale = props.playbackParameters.scale;
 
-    if (props.offset.jointId) {
-      var offset = frame.joints.filter(function (joint) {
-        return joint.id == props.offset.jointId;
-      })[0];
-      sceneOffset = {
-        x: props.offset.constrainX && offset ? offset.x : 0.0,
-        y: props.offset.constrainY && offset ? offset.y : 0.0,
-        z: props.offset.constrainZ && offset ? offset.z : 0.0
-      };
-      screenOffset = {
-        x: width / 2,
-        y: height / 2
-      };
-    } else if (props.offset.x && props.offset.x != '' && props.offset.y && props.offset.y != '' && props.offset.z && props.offset.z != '') {
-      sceneOffset = {
-        x: props.offset.constrainX ? props.offset.x : 0.0,
-        y: props.offset.constrainY ? props.offset.y : 0.0,
-        z: props.offset.constrainZ ? props.offset.z : 0.0
-      };
-      screenOffset = {
-        x: width / 2,
-        y: height / 2
-      };
-    }
-
     var render = function render() {
       //context.clearRect(0, 0, width, height);
       context.fillStyle = "black";
-      context.fillRect(0, 0, width, height); //let useEasing = props.playbackParameters.useLoopEasing && props.currentFrame >= (props.playbackParameters.endFrame - props.playbackParameters.loopEasingFrames);
+      context.fillRect(0, 0, width, height);
 
-      if (frame) {
-        for (var i = 0; i < frame.joints.length; i++) {
-          var joint = frame.joints[i];
-          var startFrameJoint = props.scene.frames[props.playbackParameters.startFrame].joints[i];
+      var renderFrame = function renderFrame(f, showStart) {
+        if (f) {
+          if (props.offset.jointId) {
+            var offset = f.joints.filter(function (joint) {
+              return joint.id == props.offset.jointId;
+            })[0];
+            sceneOffset = {
+              x: props.offset.constrainX && offset ? offset.x : 0.0,
+              y: props.offset.constrainY && offset ? offset.y : 0.0,
+              z: props.offset.constrainZ && offset ? offset.z : 0.0
+            };
+            screenOffset = {
+              x: width / 2,
+              y: height / 2
+            };
+          } else if (props.offset.x && props.offset.x != '' && props.offset.y && props.offset.y != '' && props.offset.z && props.offset.z != '') {
+            sceneOffset = {
+              x: props.offset.constrainX ? props.offset.x : 0.0,
+              y: props.offset.constrainY ? props.offset.y : 0.0,
+              z: props.offset.constrainZ ? props.offset.z : 0.0
+            };
+            screenOffset = {
+              x: width / 2,
+              y: height / 2
+            };
+          }
 
-          if (joint.display) {
-            var x = (joint.x - sceneOffset.x) * scale;
-            var y = (joint.y - sceneOffset.y) * scale;
-            var z = (joint.z - sceneOffset.z) * scale;
-            /*
-            if (useEasing) {
-                let dt = 1.0 - ((props.playbackParameters.endFrame - props.currentFrame) / props.playbackParameters.loopEasingFrames);
-                x += (((startFrameJoint.x - sceneOffset.x) * scale) - x) * dt;
-                y += (((startFrameJoint.y - sceneOffset.y) * scale) - y) * dt;
-                z += (((startFrameJoint.z - sceneOffset.z) * scale) - z) * dt;
+          for (var i = 0; i < f.joints.length; i++) {
+            var joint = f.joints[i];
+
+            if (joint.display) {
+              var x = (joint.x - sceneOffset.x) * scale;
+              var y = (joint.y - sceneOffset.y) * scale;
+              var z = (joint.z - sceneOffset.z) * scale; //view projection
+
+              var xPos = x + screenOffset.x;
+              var yPos = height - y - screenOffset.y;
+
+              if (props.playbackParameters.view == "YZ") {
+                xPos = z + screenOffset.x;
+              } else if (props.playbackParameters.view == "XZ") {
+                yPos = height - z - screenOffset.y;
+              }
+
+              if (showStart) {
+                context.fillStyle = "grey";
+              } else {
+                context.fillStyle = joint.colour;
+              }
+
+              context.beginPath();
+              context.arc(xPos, yPos, 4, 0, 2 * Math.PI);
+              context.fill();
+              context.fillText("J:" + joint.id, xPos + 10, yPos + 10);
             }
-             */
-            //view projection
-
-            var xPos = x + screenOffset.x;
-            var yPos = height - y - screenOffset.y;
-
-            if (props.playbackParameters.view == "YZ") {
-              xPos = z + screenOffset.x;
-            } else if (props.playbackParameters.view == "XZ") {
-              yPos = height - z - screenOffset.y;
-            }
-
-            context.fillStyle = joint.colour;
-            context.beginPath();
-            context.arc(xPos, yPos, 4, 0, 2 * Math.PI);
-            context.fill();
-            context.fillText("J:" + joint.id, xPos + 10, yPos + 10);
           }
         }
+      };
+
+      renderFrame(frame, false);
+
+      if (props.playbackParameters.showLoopStart) {
+        renderFrame(props.scene.frames[props.playbackParameters.startFrame], true);
       }
 
       if (props.showStats) {
@@ -5468,6 +5464,11 @@ var ViewParameters = function ViewParameters(props) {
     setLoopEasingFramesError(false);
   };
 
+  var handleShowLoopStartClick = function handleShowLoopStartClick(e) {
+    e.preventDefault();
+    props.updatePlaybackParameters(['showLoopStart'], [!props.playbackParameters.showLoopStart]);
+  };
+
   var handleScaleClick = function handleScaleClick(e) {
     props.updatePlaybackParameters(['scale'], [e.target.text]);
   };
@@ -5629,6 +5630,12 @@ var ViewParameters = function ViewParameters(props) {
     type: "submit",
     className: "btn btn-secondary"
   }, "Update Loop Parameters"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    className: "mb-3"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("button", {
+    id: "showLoopStart",
+    className: props.playbackParameters.showLoopStart ? "btn btn-success" : "btn btn-secondary",
+    onClick: handleShowLoopStartClick
+  }, "Show Loop Start")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
     className: "mb-3"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("label", {
     htmlFor: "scale",
