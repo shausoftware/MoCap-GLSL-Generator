@@ -82,6 +82,11 @@ const ViewParameters = (props) => {
         setLoopEasingFramesError(false);
     }
 
+    const handleShowLoopStartClick = (e) => {
+        e.preventDefault();
+        props.updatePlaybackParameters(['showLoopStart'],[!props.playbackParameters.showLoopStart]);
+    }
+
     const handleScaleClick = (e) =>  {
         props.updatePlaybackParameters(['scale'],[e.target.text]);
     }
@@ -184,6 +189,9 @@ const ViewParameters = (props) => {
                         <button type="submit" className="btn btn-secondary">Update Loop Parameters</button>
                     </div>
                 </form>
+                <div className="mb-3">
+                    <button id="showLoopStart" className={props.playbackParameters.showLoopStart ? "btn btn-success" : "btn btn-secondary"} onClick={handleShowLoopStartClick}>Show Loop Start</button>
+                </div>
                 <div className="mb-3">
                     <label htmlFor="scale" className="form-label">Scale</label>
                     <div className="dropdown">

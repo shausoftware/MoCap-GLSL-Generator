@@ -15,7 +15,7 @@ import Help from './toolbars/side/Help';
 
 const MocapPlayer = (props) =>  {
 
-    const API_VERSION = "1.0.12";
+    const API_VERSION = "1.0.13";
     const emptyScene = {filename: '', frames: [], bounds: {minX: 0, minY: 0, minZ: 0, maxX: 0, maxY: 0, maxZ : 0}};
     const defaultOffset = {jointId: undefined,
                            x: '',
@@ -29,6 +29,7 @@ const MocapPlayer = (props) =>  {
                                        useLoopEasing: false,
                                        loopEasingFrames: 0,
                                        frameDuration: 128,
+                                       showLoopStart: false,
                                        scale: 1.0,
                                        view: "XY"};
 
@@ -65,14 +66,10 @@ const MocapPlayer = (props) =>  {
         openDialog('openProjectDialog'); //close
     }
 
+    /*
     const updateProjectApis = (newProject) => {
-        //pre 1.0.5
-        if (!newProject.offset.constrainX) {
-            newProject.offset.constrainX = true;
-            newProject.offset.constrainY = true;
-            newProject.offset.constrainZ = true;
-        }
     }
+    */
 
     const openDialog = (dialog) => {
         let newDialogState = Object.assign({}, showDialogState);
@@ -156,6 +153,30 @@ const MocapPlayer = (props) =>  {
             constrainZ: constrainZ});
     }
 
+    const rotateJointsXZAroundOffset = (rotation) => {
+        let newScene = Object.assign({}, scene);
+        newScene.frames = newScene.frames.map((frame) => {
+            let offsetJoint = frame.joints.filter(oj => oj.id == offset.jointId)[0];
+            frame.joints = frame.joints.map((joint) => {
+                let rotXZ = rotate2D(offsetJoint.x, offsetJoint.z, joint.x, joint.z, rotation);
+                joint.x = rotXZ[0];
+                joint.z = rotXZ[1];
+                return joint;
+            });
+            return frame;
+        });
+        setScene(newScene);
+    }
+
+    const rotate2D = (cx, cy, x, y, angle) => {
+        let radians = (Math.PI / 180) * angle,
+            cos = Math.cos(radians),
+            sin = Math.sin(radians),
+            nx = (cos * (x - cx)) + (sin * (y - cy)) + cx,
+            ny = (cos * (y - cy)) - (sin * (x - cx)) + cy;
+        return [nx, ny];
+    }
+
     return(
         <div className="container-fluid h-100 w-100 p-0 bg-dark">
             <ToolsController sceneLoaded={scene.frames.length > 0}
@@ -187,6 +208,7 @@ const MocapPlayer = (props) =>  {
                     frames={scene.frames}
                     setOffsetCoordinates={setOffsetCoordinates}
                     setAsCenterJoint={setAsCenterJoint}
+                    rotateJointsXZAroundOffset={rotateJointsXZAroundOffset}
                     updateProps={updateProps}
                     setUpdateProps={setUpdateProps}
                     />

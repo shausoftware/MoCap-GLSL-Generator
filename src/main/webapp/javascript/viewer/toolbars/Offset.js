@@ -17,11 +17,15 @@ const Offset = (props) => {
     const [constrainX, setConstrainX] = React.useState(true);
     const [constrainY, setConstrainY] = React.useState(true);
     const [constrainZ, setConstrainZ] = React.useState(true);
+    const [rotation, setRotation] = React.useState(0.0);
+    const [rotationError, setRotationError] = React.useState(false);
 
     let toolsRef = React.useRef();
     let offsetXHelpRef = React.useRef();
     let offsetYHelpRef = React.useRef();
     let offsetZHelpRef = React.useRef();
+
+    let rotationRef = React.useRef();
 
     const closeToolbar = (e) => {
         props.openDialog('offsetDialog');
@@ -38,6 +42,7 @@ const Offset = (props) => {
         setConstrainX(props.offset.constrainX);
         setConstrainY(props.offset.constrainY);
         setConstrainZ(props.offset.constrainZ);
+        setRotation(0.0);
     }
 
     const handleOffsetFormSubmit = (e) => {
@@ -112,13 +117,26 @@ const Offset = (props) => {
         setConstrainZ(!constrainZ);
     }
 
+    const handleRotationChange = (e) => {
+        setRotationError(false);
+        setRotation(e.target.value);
+    }
+
+    const handleRotationClick = (e) => {
+        if (rotation == '' && rotation !== 0) {
+            setRotationError(true);
+        } else {
+            props.rotateJointsXZAroundOffset(rotation);
+        }
+    }
+
     const jointIdOptions = () => {
         let options = [];
         options.push(<li key={-1}>
                 <a className={jointId ? "dropdown-item" : "dropdown-item active"}
                    onClick={handleJointIdClick}
                    href="#">{JOINT_UNDEFINED}</a>
-            </li> );
+                </li> );
         if (props.frames.length > 0) {
             props.frames[0].joints.map((joint) => {
                 options.push(<li key={joint.id}>
@@ -152,6 +170,11 @@ const Offset = (props) => {
             offsetZHelpRef.current.className = "form-text text-danger";
         } else {
             offsetZHelpRef.current.className = "form-text";
+        }
+        if (rotationError) {
+            rotationRef.current.className = "bg-danger text-white";
+        } else {
+            rotationRef.current.className =  '';
         }
 
         if (props.showDialogState.offsetDialog)  {
@@ -210,6 +233,15 @@ const Offset = (props) => {
                         <button type="button" className="btn btn-secondary" onClick={handleClearOffsetsClick}>Clear Offsets</button>
                     </div>
                 </form>
+
+                <div className="mb-3 text-white text-center">
+                </div>
+
+                <div className="input-group mb-3">
+                    <span className="input-group-text" id="rotation" onClick={handleRotationClick}>Rotate XZ</span>
+                    <input type="number" className="form-control" value={rotation} ref={rotationRef} onChange={handleRotationChange} aria-describedby="rotation" disabled={!jointId}/>
+                </div>
+
             </div>
         </div>
     );
