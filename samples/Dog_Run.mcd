@@ -2,10 +2,11 @@
     "apiVersion": "1.0.10",
     "playbackParameters": {
         "startFrame": "434",
-        "endFrame": "471",
+        "endFrame": "472",
         "useLoopEasing": false,
         "loopEasingFrames": 0,
         "frameDuration": "64",
+        "showLoopStart": false,
         "scale": "0.5",
         "view": "XY"
     },

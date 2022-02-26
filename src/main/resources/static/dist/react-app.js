@@ -3743,6 +3743,32 @@ var MocapPlayer = function MocapPlayer(props) {
     });
   };
 
+  var rotateJointsXZAroundOffset = function rotateJointsXZAroundOffset(rotation) {
+    var newScene = Object.assign({}, scene);
+    newScene.frames = newScene.frames.map(function (frame) {
+      var offsetJoint = frame.joints.filter(function (oj) {
+        return oj.id == offset.jointId;
+      })[0];
+      frame.joints = frame.joints.map(function (joint) {
+        var rotXZ = rotate2D(offsetJoint.x, offsetJoint.z, joint.x, joint.z, rotation);
+        joint.x = rotXZ[0];
+        joint.z = rotXZ[1];
+        return joint;
+      });
+      return frame;
+    });
+    setScene(newScene);
+  };
+
+  var rotate2D = function rotate2D(cx, cy, x, y, angle) {
+    var radians = Math.PI / 180 * angle,
+        cos = Math.cos(radians),
+        sin = Math.sin(radians),
+        nx = cos * (x - cx) + sin * (y - cy) + cx,
+        ny = cos * (y - cy) - sin * (x - cx) + cy;
+    return [nx, ny];
+  };
+
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("div", {
     className: "container-fluid h-100 w-100 p-0 bg-dark"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(_toolbars_ToolsController__WEBPACK_IMPORTED_MODULE_3__["default"], {
@@ -3775,6 +3801,7 @@ var MocapPlayer = function MocapPlayer(props) {
     frames: scene.frames,
     setOffsetCoordinates: setOffsetCoordinates,
     setAsCenterJoint: setAsCenterJoint,
+    rotateJointsXZAroundOffset: rotateJointsXZAroundOffset,
     updateProps: updateProps,
     setUpdateProps: setUpdateProps
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(_toolbars_side_Joints__WEBPACK_IMPORTED_MODULE_7__["default"], {
@@ -4182,8 +4209,7 @@ var Viewer = function Viewer(props) {
   var _React$useState = react__WEBPACK_IMPORTED_MODULE_1__.useState([500, 500]),
       _React$useState2 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState, 2),
       viewerSize = _React$useState2[0],
-      setViewerSize = _React$useState2[1]; //   const [node, setNode]  = React.useState(null);
-
+      setViewerSize = _React$useState2[1];
 
   var canvasRef = react__WEBPACK_IMPORTED_MODULE_1__.useRef();
   var viewerRef = react__WEBPACK_IMPORTED_MODULE_1__.useRef();
@@ -4296,7 +4322,7 @@ var Viewer = function Viewer(props) {
         context.fillText("End Frame: " + props.playbackParameters.endFrame, width - xText, 80);
         context.fillText("Total Frames: " + props.totalFrames, width - xText, 100);
         context.fillText("Scale: " + props.playbackParameters.scale, width - xText, 120);
-        context.fillText("View: " + props.playbackParameters.view, width - xText, 140); //context.fillText("Easing: " + useEasing, width - xText, 160);
+        context.fillText("View: " + props.playbackParameters.view, width - xText, 140);
       }
     };
 
@@ -4853,10 +4879,21 @@ var Offset = function Offset(props) {
       constrainZ = _React$useState20[0],
       setConstrainZ = _React$useState20[1];
 
+  var _React$useState21 = react__WEBPACK_IMPORTED_MODULE_1__.useState(0.0),
+      _React$useState22 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState21, 2),
+      rotation = _React$useState22[0],
+      setRotation = _React$useState22[1];
+
+  var _React$useState23 = react__WEBPACK_IMPORTED_MODULE_1__.useState(false),
+      _React$useState24 = (0,_babel_runtime_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_0__["default"])(_React$useState23, 2),
+      rotationError = _React$useState24[0],
+      setRotationError = _React$useState24[1];
+
   var toolsRef = react__WEBPACK_IMPORTED_MODULE_1__.useRef();
   var offsetXHelpRef = react__WEBPACK_IMPORTED_MODULE_1__.useRef();
   var offsetYHelpRef = react__WEBPACK_IMPORTED_MODULE_1__.useRef();
   var offsetZHelpRef = react__WEBPACK_IMPORTED_MODULE_1__.useRef();
+  var rotationRef = react__WEBPACK_IMPORTED_MODULE_1__.useRef();
 
   var closeToolbar = function closeToolbar(e) {
     props.openDialog('offsetDialog');
@@ -4873,6 +4910,7 @@ var Offset = function Offset(props) {
     setConstrainX(props.offset.constrainX);
     setConstrainY(props.offset.constrainY);
     setConstrainZ(props.offset.constrainZ);
+    setRotation(0.0);
   };
 
   var handleOffsetFormSubmit = function handleOffsetFormSubmit(e) {
@@ -4950,6 +4988,19 @@ var Offset = function Offset(props) {
     setConstrainZ(!constrainZ);
   };
 
+  var handleRotationChange = function handleRotationChange(e) {
+    setRotationError(false);
+    setRotation(e.target.value);
+  };
+
+  var handleRotationClick = function handleRotationClick(e) {
+    if (rotation == '' && rotation !== 0) {
+      setRotationError(true);
+    } else {
+      props.rotateJointsXZAroundOffset(rotation);
+    }
+  };
+
   var jointIdOptions = function jointIdOptions() {
     var options = [];
     options.push( /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("li", {
@@ -4997,6 +5048,12 @@ var Offset = function Offset(props) {
       offsetZHelpRef.current.className = "form-text text-danger";
     } else {
       offsetZHelpRef.current.className = "form-text";
+    }
+
+    if (rotationError) {
+      rotationRef.current.className = "bg-danger text-white";
+    } else {
+      rotationRef.current.className = '';
     }
 
     if (props.showDialogState.offsetDialog) {
@@ -5119,7 +5176,23 @@ var Offset = function Offset(props) {
     type: "button",
     className: "btn btn-secondary",
     onClick: handleClearOffsetsClick
-  }, "Clear Offsets")))));
+  }, "Clear Offsets"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    className: "mb-3 text-white text-center"
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("div", {
+    className: "input-group mb-3"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("span", {
+    className: "input-group-text",
+    id: "rotation",
+    onClick: handleRotationClick
+  }, "Rotate XZ"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement("input", {
+    type: "number",
+    className: "form-control",
+    value: rotation,
+    ref: rotationRef,
+    onChange: handleRotationChange,
+    "aria-describedby": "rotation",
+    disabled: !jointId
+  }))));
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Offset);
